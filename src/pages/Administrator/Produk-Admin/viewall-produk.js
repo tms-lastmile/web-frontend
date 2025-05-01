@@ -1,8 +1,7 @@
-import BaseTable, { SelectColumnFilter, ActionButtons } from '../../../components/BaseTable'
+import  { SelectColumnFilter } from '../../../components/BaseTable'
 import React, { useEffect, useState } from 'react'
 import { Loading } from '../../../components/Loading'
 import axiosAuthInstance from '../../../utils/axios-auth-instance'
-import jwtDecode from 'jwt-decode'
 import { BaseTablePagination } from '../../../components/BaseTablePagination'
 
 function ViewAllProdukAdmin() {
@@ -17,7 +16,6 @@ function ViewAllProdukAdmin() {
     try {
       const response = await axiosAuthInstance.get(`/products?skip=${(page - 1) * limit}&limit=${limit}`)
       const { products, total } = response.data.data
-      // console.log(response.data.data)
       setDataProduk(products)
       setTotalPages(Math.ceil(total / limit))
       setLoading(false)
@@ -62,10 +60,6 @@ function ViewAllProdukAdmin() {
         accessor: 'product_type',
         Filter: SelectColumnFilter,
         filter: 'includes'
-      },
-      {
-        id: 'id',
-        Header: 'Action'
       }
     ],
     []

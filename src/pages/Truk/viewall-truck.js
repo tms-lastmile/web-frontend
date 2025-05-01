@@ -8,7 +8,7 @@ function ViewAllTrucks() {
   const [dataTruk, setDataTruk] = useState([])
   const [showLoading, setShowLoading] = useState(true)
   const [userRole, setUserRole] = useState('')
-  const [dataFetched, setDataFetched] = useState(false) // New state to track data fetching
+  const [dataFetched, setDataFetched] = useState(false)
 
   useEffect(() => {
     const tokenFromSession = sessionStorage.getItem('token')
@@ -16,7 +16,7 @@ function ViewAllTrucks() {
       const decodedToken = jwtDecode(tokenFromSession)
       setUserRole(decodedToken.role.name)
     }
-  }, []) // Dependensi kosong agar hanya dijalankan sekali saat komponen dimuat
+  }, [])
 
   useEffect(() => {
     if (!dataFetched) {

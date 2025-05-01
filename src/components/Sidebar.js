@@ -144,18 +144,7 @@ export default function Sidebar({ children, beranda, user, role, pengiriman, tru
                 <p className="text-[16px] font-semibold">Product</p>
               </div>
             )}
-            {customer === true ? (
-              <div className="flex w-full px-[15px] py-[15px] space-x-2 bg-neutral-10 text-primary rounded-l-[12px] cursor-pointer" onClick={() => [navigateWithReload('/customer'), setIsDropdownOpen(false)]}>
-                <BsBasket size={24} />
-                <p className="text-[16px] font-semibold text-primary">Customer</p>
-              </div>
-            ) : (
-              <div className="flex w-full px-[15px] py-[15px] space-x-1 text-neutral-10 cursor-pointer" onClick={() => [navigateWithReload('/customer'), setIsDropdownOpen(false)]}>
-                <BsPersonLinesFill size={24} />
-                <p className="text-[16px] font-semibold">Customer</p>
-              </div>
-            )}
-
+            
             {truk === true ? (
               <div
                 className="flex w-full px-[15px] py-[15px] space-x-2 bg-neutral-10 text-primary rounded-l-[12px] cursor-pointer"

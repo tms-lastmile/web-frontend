@@ -1,19 +1,22 @@
-import BaseTable, { SelectColumnFilter, StatusPill, ActionButtons } from '../../components/BaseTable'
+import { SelectColumnFilter } from '../../components/BaseTable'
 import React, { useEffect, useState } from 'react'
 import { Loading } from '../../components/Loading'
 import axiosAuthInstance from '../../utils/axios-auth-instance'
-import jwtDecode from 'jwt-decode'
-import { BaseTablePagination, ActionButtonsPagination } from '../../components/BaseTablePagination'
+import { BaseTablePagination } from '../../components/BaseTablePagination'
+
 function ViewAllDo() {
   const [dataDO, setDataDO] = useState([])
   const [showLoading, setShowLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(5)
   const [totalPages, setTotalPages] = useState(0)
+  
   const fetchDO = async (page, limit) => {
+    
     setShowLoading(true)
+
     try {
-      const response = await axiosAuthInstance.get(`/delivery-order?skip=${(page - 1) * limit}&limit=${limit}`)
+      const response = await axiosAuthInstance.get(`/delivery-orders?skip=${(page - 1) * limit}&limit=${limit}`)
       console.log(response)
       const { deliveryOrders, total } = response.data.data
       setDataDO(deliveryOrders)
@@ -34,6 +37,7 @@ function ViewAllDo() {
       setCurrentPage(page)
     }
   }
+
   const handlePageSizeChange = (size) => {
     setPageSize(size)
     setCurrentPage(1)
@@ -79,9 +83,8 @@ function ViewAllDo() {
         filter: 'includes'
       },
       {
-        Header: 'Action',
-        accessor: (row) => ['DO', row.id], // Make sure this returns the expected structure
-        Cell: ({ value }) => <ActionButtonsPagination value={value} /> // Pass value directly to the component
+        id: 'id',
+        Header: 'Action'
       }
     ],
     []

@@ -1,45 +1,44 @@
-import BaseTable, { SelectColumnFilter, ActionButtons } from '../../components/BaseTable'
-import React, { useEffect, useState } from 'react'
-import { Loading } from '../../components/Loading'
-import axiosAuthInstance from '../../utils/axios-auth-instance'
-import jwtDecode from 'jwt-decode'
-import { BaseTablePagination } from '../../components/BaseTablePagination'
+import { SelectColumnFilter } from '../../components/BaseTable';
+import React, { useEffect, useState } from 'react';
+import { Loading } from '../../components/Loading';
+import axiosAuthInstance from '../../utils/axios-auth-instance';
+import { BaseTablePagination } from '../../components/BaseTablePagination';
 
 function ViewAllProductLine() {
-  const [dataProductLine, setDataProductLine] = useState([])
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(5)
-  const [totalPages, setTotalPages] = useState(0)
-  const [loading, setLoading] = useState(true)
+  const [dataProductLine, setDataProductLine] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   const fetchProductLine = async (page, limit) => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const response = await axiosAuthInstance.get(`/product-line?skip=${(page - 1) * limit}&limit=${limit}`)
-      const { productLines, total } = response.data.data
-      setDataProductLine(productLines)
-      setTotalPages(Math.ceil(total / limit))
-      setLoading(false)
+      const response = await axiosAuthInstance.get(`/product-lines?skip=${(page - 1) * limit}&limit=${limit}`);
+      const { productLine, total } = response.data.data;
+      setDataProductLine(productLine);
+      setTotalPages(Math.ceil(total / limit));
+      setLoading(false);
     } catch (error) {
-      console.error('Error fetching products:', error)
-      setLoading(false)
+      console.error('Error fetching products:', error);
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchProductLine(currentPage, pageSize)
-  }, [currentPage, pageSize])
+    fetchProductLine(currentPage, pageSize);
+  }, [currentPage, pageSize]);
 
   const handlePageChange = (page) => {
     if (page > 0 && page <= totalPages) {
-      setCurrentPage(page)
+      setCurrentPage(page);
     }
-  }
+  };
 
   const handlePageSizeChange = (size) => {
-    setPageSize(size)
-    setCurrentPage(1)
-  }
+    setPageSize(size);
+    setCurrentPage(1);
+  };
 
   const columns = React.useMemo(
     () => [
@@ -67,19 +66,6 @@ function ViewAllProductLine() {
         Filter: SelectColumnFilter,
         filter: 'includes'
       },
-      //   {
-      //     Header: 'Lokasi Origin',
-      //     accessor: 'delivery_order.loc_',
-      //     Filter: SelectColumnFilter,
-      //     filter: 'includes'
-      //   },
-      //   {
-      //     Header: 'Lokasi Destination',
-      //     accessor: 'delivery_order.status',
-      //     Filter: SelectColumnFilter,
-      //     filter: 'includes'
-      //   },
-
       {
         Header: 'Product',
         accessor: 'product.name',
@@ -109,16 +95,26 @@ function ViewAllProductLine() {
       }
     ],
     []
-  )
+  );
 
   return (
     <div className="h-full min-h-full justify-center">
       <Loading visibility={loading} />
-      <div className={` ${loading ? 'hidden' : 'visible pt-10 px-10'} `}>
-        <BaseTablePagination columns={columns} data={dataProductLine} currentPage={currentPage} totalPages={totalPages} pageSize={pageSize} onPageChange={handlePageChange} onPageSizeChange={handlePageSizeChange} loading={loading} judul={'Daftar Product'} />
+      <div className={`${loading ? 'hidden' : 'visible pt-10 px-10'}`}>
+          <BaseTablePagination
+            columns={columns}
+            data={dataProductLine}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+            loading={loading}
+            judul={'Daftar Product Line'}
+          />
       </div>
     </div>
-  )
+  );
 }
 
-export default ViewAllProductLine
+export default ViewAllProductLine;

@@ -1,68 +1,68 @@
-import React, { useEffect, useState } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
-import axiosAuthInstance from '../../utils/axios-auth-instance'
-import { Loading } from '../../components/Loading'
-import BaseTable, { SelectColumnFilter, ActionButtons } from '../../components/BaseTable'
-import { BaseTablePagination } from '../../components/BaseTablePagination'
+import React, { useEffect, useState } from 'react';
+import { useLocation, useParams } from 'react-router-dom';
+import axiosAuthInstance from '../../utils/axios-auth-instance';
+import { Loading } from '../../components/Loading';
+import { SelectColumnFilter } from '../../components/BaseTable';
+import { BaseTablePagination } from '../../components/BaseTablePagination';
 
 function DODetailPage() {
-  const { doId } = useParams() // Get customerId from URL parameters
-  const location = useLocation() // Access location state
-  const [dos, setDos] = useState(location.state?.dos || null) // Initial data from state if available
-  const [loading, setLoading] = useState(!location.state?.dos) // Show loading only if data not in state
-  const [error, setError] = useState(null)
+  const { doId } = useParams();
+  const location = useLocation();
+  const [dos, setDos] = useState(location.state?.dos || null);
+  const [loading, setLoading] = useState(!location.state?.dos);
+  const [error, setError] = useState(null);
 
-  const [productLine, setProductLine] = useState([])
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(5)
-  const [totalPages, setTotalPages] = useState(0)
-
-  const fetchDoDetail = async () => {
-    setLoading(true)
-    try {
-      const response = await axiosAuthInstance.get(`/delivery-order/${doId}`)
-      console.log(response)
-      setDos(response.data.data)
-    } catch (error) {
-      setError('Failed to load do details.')
-      console.error('Error fetching customer details:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchDoDetail()
-  }, [])
+  const [dataProductLine, setDataProductLine] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
 
   const fetchProductLine = async (page, limit) => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const response = await axiosAuthInstance.get(`/product-line?skip=${(page - 1) * limit}&limit=${limit}=&delivery_order_id=${doId}`)
-      console.log(response)
-      const { productLines, total } = response.data.data
-      setProductLine(productLines)
-      setTotalPages(Math.ceil(total / limit))
-      setLoading(false)
+      const response = await axiosAuthInstance.get(`/product-lines?skip=${(page - 1) * limit}&limit=${limit}&delivery_order_id=${doId}`);
+      const { productLine, total } = response.data.data;
+      setDataProductLine(productLine);
+      setTotalPages(Math.ceil(total / limit));
+      setLoading(false);
     } catch (error) {
-      console.error('Error fetching product line:', error)
-      setLoading(false)
+      console.error('Error fetching products:', error);
+      setLoading(false);
     }
-  }
+  };
+
+  const fetchDoDetail = async () => {
+    setLoading(true);
+    try {
+      const response = await axiosAuthInstance.get(`/delivery-order/${doId}`);
+      setDos(response.data.data);
+    } catch (error) {
+      setError('Failed to load do details.');
+      console.error('Error fetching delivery order details:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetchProductLine(currentPage, pageSize)
-  }, [currentPage, pageSize])
+    fetchDoDetail();
+  }, [doId]);
+
+  useEffect(() => {
+    fetchProductLine(currentPage, pageSize);
+  }, [currentPage, pageSize, doId]);
 
   const handlePageChange = (page) => {
     if (page > 0 && page <= totalPages) {
-      setCurrentPage(page)
+      setCurrentPage(page);
     }
-  }
+  };
 
   const handlePageSizeChange = (size) => {
-    setPageSize(size)
-    setCurrentPage(1)
-  }
+    setPageSize(size);
+    setCurrentPage(1);
+  };
+
   const columns = React.useMemo(
     () => [
       {
@@ -71,19 +71,6 @@ function DODetailPage() {
         Filter: SelectColumnFilter,
         filter: 'includes'
       },
-      //   {
-      //     Header: 'Lokasi Origin',
-      //     accessor: 'delivery_order.loc_',
-      //     Filter: SelectColumnFilter,
-      //     filter: 'includes'
-      //   },
-      //   {
-      //     Header: 'Lokasi Destination',
-      //     accessor: 'delivery_order.status',
-      //     Filter: SelectColumnFilter,
-      //     filter: 'includes'
-      //   },
-
       {
         Header: 'Product',
         accessor: 'product.name',
@@ -113,13 +100,14 @@ function DODetailPage() {
       }
     ],
     []
-  )
-  if (loading) return <Loading visibility={true} /> // Show loading spinner if fetching
-  if (error) return <p>{error}</p> // Display error message if fetch failed
+  );
+
+  if (loading) return <Loading visibility={true} />;
+  if (error) return <p>{error}</p>;
 
   return (
     <div className="flex justify-center items-center px-10 py-10">
-      <div className=" mx-auto bg-white rounded-lg shadow-md my-8 pt-10 px-10">
+      <div className="mx-auto bg-white rounded-lg shadow-md my-8 pt-10 px-10">
         <h1 className="text-2xl font-bold mb-6">Informasi Delivery Order</h1>
 
         <div className="grid grid-cols-2 gap-4 mb-4">
@@ -133,22 +121,11 @@ function DODetailPage() {
             <div className="w-full p-2 border border-gray-300 rounded-md bg-gray-50">{dos.delivery_order_num || 'N/A'}</div>
           </div>
         </div>
+
         <div className="mb-4">
           <label className="block text-sm font-semibold mb-1">Status Delivery Order</label>
           <div className="w-full p-2 border border-gray-300 rounded-md bg-gray-50 text-green-500 font-bold">{dos.status || 'N/A'}</div>
         </div>
-
-        {/* <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-semibold mb-1">Volume</label>
-            <div className="w-full p-2 border border-gray-300 rounded-md bg-gray-50">{dos.volume || 'N/A'}</div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold mb-1">Quantity</label>
-            <div className="w-full p-2 border border-gray-300 rounded-md bg-gray-50">{dos.quantity || 'N/A'}</div>
-          </div>
-        </div> */}
 
         <div className="mb-4">
           <label className="block text-sm font-semibold mb-1">ETA Target</label>
@@ -180,16 +157,28 @@ function DODetailPage() {
           <label className="block text-sm font-semibold mb-1">Customer</label>
           <div className="w-full p-2 border border-gray-300 rounded-md bg-gray-50">{dos.loc_dest.customer.name || 'N/A'}</div>
         </div>
+
         <div className="mb-4">
           <label className="block text-sm font-semibold mb-1">Alamat Tujuan</label>
           <div className="w-full p-2 border border-gray-300 rounded-md bg-gray-50">{dos.loc_dest.address || 'N/A'}</div>
         </div>
+
         <div className="h-full min-h-full flex flex-col items-center w-full pb-10">
-          <BaseTablePagination columns={columns} data={productLine} currentPage={currentPage} totalPages={totalPages} pageSize={pageSize} onPageChange={handlePageChange} onPageSizeChange={handlePageSizeChange} loading={loading} judul={'Muatan'} />
+            <BaseTablePagination
+              columns={columns}
+              data={dataProductLine}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              onPageChange={handlePageChange}
+              onPageSizeChange={handlePageSizeChange}
+              loading={loading}
+              judul={'Muatan'}
+            />
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default DODetailPage
+export default DODetailPage;

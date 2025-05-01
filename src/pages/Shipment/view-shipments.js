@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Loading } from '../../components/Loading';
 import axiosAuthInstance from '../../utils/axios-auth-instance';
 import { BaseTablePagination } from '../../components/BaseTablePagination';
-import { useNavigate } from 'react-router-dom';
 import { ModalSelectPriority } from '../../components/Modal';
 
 function ViewShipments() {
