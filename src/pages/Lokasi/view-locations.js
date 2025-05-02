@@ -1,20 +1,14 @@
-import { useLocation, useNavigate } from 'react-router-dom'
-import { Button } from '../../components/Button'
 import { Dropdown } from '../../components/Dropdown'
 import { TextField } from '../../components/TextField'
 import React, { useEffect, useRef, useState } from 'react'
 import { Loading } from '../../components/Loading'
-import { isAnyAttributeNull, checkAttributeNull } from '../../utils/utils'
 import axiosAuthInstance from '../../utils/axios-auth-instance'
 import { GoogleMap, LoadScript, Marker, StandaloneSearchBox } from '@react-google-maps/api'
-import axios from 'axios'
-import { v4 as uuidv4 } from 'uuid'
 import { useParams } from 'react-router-dom'
 
 function ViewLokasi() {
   const { lokasiId } = useParams()
-  let navigate = useNavigate()
-  const location = useLocation()
+  console.log("lokasiId:", lokasiId)
 
   const [showLoading, setShowLoading] = useState(true)
   const [detailLokasiData, setDetailLokasiData] = useState({
@@ -30,23 +24,12 @@ function ViewLokasi() {
     longitude: null,
     open_hour: null,
     close_hour: null,
-    loc_id: null,
     service_time: null,
-    location_type: null
-  })
-  const [dataDC, setDataDC] = useState([])
-  const [dataTipeLokasi, setDataTipeLokasi] = useState([])
-  const [customerDropdown, setCustomerDropdown] = useState([])
-  const [tipeLokasiDropdown, setTipeLokasiDropdown] = useState({
-    name: '',
-    value: '',
-    time: '' // You might want to provide a default value for this property
+    location_type: null,
+    customer_name: null,
+    is_dc: false
   })
   const [dcDropdown, setDCDropdown] = useState(null)
-  const [dataProvinsi, setDataProvinsi] = useState([])
-  const [dataKota, setDataKota] = useState([])
-  const [dataKecamatan, setDataKecamatan] = useState([])
-  const [dataDesa, setDataDesa] = useState([])
   const [provDropdown, setProvDropdown] = useState(null)
   const [kotaDropdown, setKotaDropdown] = useState(null)
   const [kecDropdown, setKecDropdown] = useState(null)
@@ -54,12 +37,10 @@ function ViewLokasi() {
 
   useEffect(() => {
     async function fetchDataLokasi() {
-      if (lokasiId != null) {
-        console.log(lokasiId)
+      if (lokasiId) {
         try {
           const response = await axiosAuthInstance.get(`/location/${lokasiId}`)
           const responseData = response.data.data
-          console.log(responseData)
           const lokasiData = {
             id: responseData.id,
             name: responseData.name,
@@ -123,94 +104,65 @@ function ViewLokasi() {
 
   const handleProvDropdownChange = (selectedValue) => {
     setProvDropdown(selectedValue)
-    setDetailLokasiData({
-      ...detailLokasiData,
-      provinsi: selectedValue.name
-    })
-    if (detailLokasiData.provinsi !== selectedValue.name) {
-      setKotaDropdown(null)
-      setKecDropdown(null)
-      setDesaDropdown(null)
-      setDetailLokasiData({
-        ...detailLokasiData,
-        provinsi: selectedValue.name,
-        kabupaten_kota: null,
-        kecamatan: null,
-        desa_kelurahan: null
-      })
-    }
+    setDetailLokasiData((prevData) => ({
+      ...prevData,
+      provinsi: selectedValue.name,
+      kabupaten_kota: null,
+      kecamatan: null,
+      desa_kelurahan: null
+    }))
+    setKotaDropdown(null)
+    setKecDropdown(null)
+    setDesaDropdown(null)
   }
 
   const handleKotaDropdownChange = (selectedValue) => {
     setKotaDropdown(selectedValue)
-    setDetailLokasiData({
-      ...detailLokasiData,
-      kabupaten_kota: selectedValue.name
-    })
-
-    if (detailLokasiData.kabupaten_kota !== selectedValue.name) {
-      setKecDropdown(null)
-      setDesaDropdown(null)
-      setDetailLokasiData({
-        ...detailLokasiData,
-        kabupaten_kota: selectedValue.name,
-        kecamatan: null,
-        desa_kelurahan: null
-      })
-    }
+    setDetailLokasiData((prevData) => ({
+      ...prevData,
+      kabupaten_kota: selectedValue.name,
+      kecamatan: null,
+      desa_kelurahan: null
+    }))
+    setKecDropdown(null)
+    setDesaDropdown(null)
   }
 
   const handleKecDropdownChange = (selectedValue) => {
     setKecDropdown(selectedValue)
-    setDetailLokasiData({
-      ...detailLokasiData,
-      kecamatan: selectedValue.name
-    })
-
-    if (detailLokasiData.kecamatan !== selectedValue.name) {
-      setDesaDropdown(null)
-      setDetailLokasiData({
-        ...detailLokasiData,
-        kecamatan: selectedValue.name,
-        desa_kelurahan: null
-      })
-    }
+    setDetailLokasiData((prevData) => ({
+      ...prevData,
+      kecamatan: selectedValue.name,
+      desa_kelurahan: null
+    }))
+    setDesaDropdown(null)
   }
 
   const handleDesaDropdownChange = (selectedValue) => {
     setDesaDropdown(selectedValue)
-    setDetailLokasiData({
-      ...detailLokasiData,
+    setDetailLokasiData((prevData) => ({
+      ...prevData,
       desa_kelurahan: selectedValue.name
-    })
+    }))
   }
-
-  //Handle Detail Req
-  const [isOpenConfirmation, setIsOpenConfirmation] = useState(false)
-  const [isOpenError, setIsOpenError] = useState(false)
-  const [isOpenSuccess, setIsOpenSuccess] = useState(false)
-  const [isError, setIsError] = useState(false)
 
   const handleDCDropdownChange = (selectedValue) => {
     setDCDropdown(selectedValue)
-    setDetailLokasiData({
-      ...detailLokasiData,
+    setDetailLokasiData((prevData) => ({
+      ...prevData,
       dc_id: selectedValue.value
-    })
+    }))
   }
 
   const handleInputChange = (name, value) => {
-    setDetailLokasiData({ ...detailLokasiData, [name]: value })
+    setDetailLokasiData((prevData) => ({ ...prevData, [name]: value }))
   }
 
-  //Init Maps
-  const [mapRef, setMapRef] = useState(null)
   const searchBoxRef = useRef()
 
   const onPlacesChanged = () => {
     if (searchBoxRef.current) {
       const places = searchBoxRef.current.getPlaces()
-
       if (places && places.length > 0) {
         const { lat, lng } = places[0].geometry.location
         setDetailLokasiData({
@@ -237,83 +189,182 @@ function ViewLokasi() {
   return (
     <div className="relative h-full -z-10">
       <Loading visibility={showLoading} />
-      {/* <Modal variant="primary" isOpen={isOpenConfirmation} closeModal={() => setIsOpenConfirmation(false)} title="Ubah Data Lokasi" description="Anda yakin ingin menyimpan lokasi baru?" rightButtonText="Yakin" onClickRight={detailLokasi} leftButtonText="Batal" /> */}
-
-      {/* <Modal variant="primary" isOpen={isOpenSuccess} closeModal={() => setIsOpenSuccess(false)} description="Berhasil menyimpan data lokasi." rightButtonText="Selesai" onClickRight={() => navigate('/lokasi')} />
-      <Modal variant="danger" isOpen={isOpenError} closeModal={() => setIsOpenError(false)} description="Gagal menyimpan data lokasi." rightButtonText="Ulangi" /> */}
-
       <div className={`px-[50px] py-[30px] ${showLoading ? 'hidden' : 'visible'}`}>
         <div className="p-8 bg-white rounded-lg">
           <h4>Informasi Lokasi</h4>
           <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_KEY} libraries={['places']}>
             <div className="pt-4">
-              {!detailLokasiData.is_dc && <TextField label="Nama Customer" disabled={true} placeholder="Nama Customer" required={true} className="w-full" value={detailLokasiData.customer_name} onChange={(e) => handleInputChange('dc', e.target.value)} isError={isError && checkAttributeNull(detailLokasiData.customer_name)} />}
-              {!detailLokasiData.is_dc && <Dropdown placeholder="Contoh: Jakarta Timur" label="Distribution Center (DC) " data={dataDC} className="w-full min-h-[40px]" required={true} value={dcDropdown} onChange={handleDCDropdownChange} isError={isError && checkAttributeNull(dcDropdown)} disabled={true} />}
-              {/* {dc_ID !== 'null' ? <Dropdown placeholder="Contoh: Jakarta Timur" label="Distribution Center (DC) " data={dataDC} className="w-full min-h-[40px] text-neutral-60" required={true} value={dcDropdown} onChange={handleDCDropdownChange} isError={isError && checkAttributeNull(dcDropdown)} disabled={true} /> : userRole === 'Super' ? <Dropdown placeholder="Contoh: Jakarta Timur" label="Distribution Center (DC) " data={dataDC} className="w-full min-h-[40px]" required={true} value={dcDropdown} onChange={handleDCDropdownChange} isError={isError && checkAttributeNull(dcDropdown)} /> : null} */}
-              {/* <Dropdown placeholder="Contoh: Jakarta Timur" label="Distribution Center (DC) " data={dataDC} className="w-full min-h-[40px]" required={true} value={dcDropdown} onChange={handleDCDropdownChange} isError={isError && checkAttributeNull(dcDropdown)} disabled={true} /> */}
+              {!detailLokasiData.is_dc && (
+                <TextField
+                  label="Nama Customer"
+                  disabled={true}
+                  placeholder="Nama Customer"
+                  required={true}
+                  className="w-full"
+                  value={detailLokasiData.customer_name}
+                  onChange={(e) => handleInputChange('dc', e.target.value)}
+                />
+              )}
+              {!detailLokasiData.is_dc && (
+                <Dropdown
+                  placeholder="Contoh: Jakarta Timur"
+                  label="Distribution Center (DC)"
+                  data={[]}
+                  className="w-full min-h-[40px]"
+                  required={true}
+                  value={dcDropdown}
+                  onChange={handleDCDropdownChange}
+                  disabled={true}
+                />
+              )}
               <StandaloneSearchBox onLoad={(ref) => (searchBoxRef.current = ref)} onPlacesChanged={onPlacesChanged}>
-                <TextField label="Alamat Lokasi" disabled={true} placeholder="Alamat Lokasi" required={true} className="w-full" value={detailLokasiData.address} onChange={(e) => handleInputChange('address', e.target.value)} isError={isError && checkAttributeNull(detailLokasiData.address)} />
+                <TextField
+                  label="Alamat Lokasi"
+                  disabled={true}
+                  placeholder="Alamat Lokasi"
+                  required={true}
+                  className="w-full"
+                  value={detailLokasiData.address}
+                  onChange={(e) => handleInputChange('address', e.target.value)}
+                />
               </StandaloneSearchBox>
 
               <div className={`w-full h-full overflow-hidden p-2`}>
-                <GoogleMap ref={setMapRef} mapContainerStyle={mapStyle} center={center} zoom={15}>
+                <GoogleMap mapContainerStyle={mapStyle} center={center} zoom={15}>
                   {detailLokasiData.latitude && detailLokasiData.longitude && <Marker position={center} />}
                 </GoogleMap>
               </div>
               <div className="flex">
                 <div className="w-[50%]">
-                  <TextField label="Latitude" disabled={true} placeholder="Latitude" type="number" required={true} className="w-full" value={detailLokasiData.latitude} onChange={(e) => handleInputChange('latitude', e.target.value)} isError={isError && checkAttributeNull(detailLokasiData.latitude)} />
+                  <TextField
+                    label="Latitude"
+                    disabled={true}
+                    placeholder="Latitude"
+                    type="number"
+                    required={true}
+                    className="w-full"
+                    value={detailLokasiData.latitude}
+                    onChange={(e) => handleInputChange('latitude', e.target.value)}
+                  />
                 </div>
                 <div className="w-[50%]">
-                  <TextField label="Longitude" disabled={true} placeholder="Longitude" type="number" required={true} className="w-full" value={detailLokasiData.longitude} onChange={(e) => handleInputChange('longitude', e.target.value)} isError={isError && checkAttributeNull(detailLokasiData.longitude)} />
+                  <TextField
+                    label="Longitude"
+                    disabled={true}
+                    placeholder="Longitude"
+                    type="number"
+                    required={true}
+                    className="w-full"
+                    value={detailLokasiData.longitude}
+                    onChange={(e) => handleInputChange('longitude', e.target.value)}
+                  />
                 </div>
               </div>
 
               <div className="flex">
                 <div className="w-[50%]">
-                  <Dropdown placeholder="Contoh: DKI Jakarta" disabled={true} label="Provinsi" data={dataProvinsi} className="w-full" required={true} value={provDropdown} onChange={handleProvDropdownChange} isError={isError && checkAttributeNull(provDropdown)} />
-                  {/* <TextField label="Kelurahan" placeholder="Kelurahan" required={true} className="w-full" value={detailLokasiData.desa_kelurahan} onChange={(e) => handleInputChange("desa_kelurahan", e.target.value)} isError={isError && checkAttributeNull(detailLokasiData.desa_kelurahan)}/> */}
+                  <Dropdown
+                    placeholder="Contoh: DKI Jakarta"
+                    disabled={true}
+                    label="Provinsi"
+                    data={[]}
+                    className="w-full"
+                    required={true}
+                    value={provDropdown}
+                    onChange={handleProvDropdownChange}
+                  />
                 </div>
                 <div className="w-[50%]">
-                  <Dropdown placeholder="Contoh: Jakarta Selatan" disabled={true} label="Kabupaten/Kota" data={dataKota} className="w-full" required={true} value={kotaDropdown} onChange={handleKotaDropdownChange} isError={isError && checkAttributeNull(kotaDropdown)} />
-                  {/* <TextField label="Kecamatan" placeholder="Kecamatan" required={true} className="w-full" value={detailLokasiData.kecamatan} onChange={(e) => handleInputChange("kecamatan", e.target.value)} isError={isError && checkAttributeNull(detailLokasiData.kecamatan)}/> */}
+                  <Dropdown
+                    placeholder="Contoh: Jakarta Selatan"
+                    disabled={true}
+                    label="Kabupaten/Kota"
+                    data={[]}
+                    className="w-full"
+                    required={true}
+                    value={kotaDropdown}
+                    onChange={handleKotaDropdownChange}
+                  />
                 </div>
               </div>
 
               <div className="flex">
                 <div className="w-[50%]">
-                  <Dropdown placeholder="Contoh: Pesanggrahan" disabled={true} label="Kecamatan" data={dataKecamatan} className="w-full" required={true} value={kecDropdown} onChange={handleKecDropdownChange} isError={isError && checkAttributeNull(kecDropdown)} />
-                  {/* <TextField label="Kabupaten/Kota" placeholder="Kabupaten/Kota" required={true} className="w-full" value={detailLokasiData.kabupaten_kota} onChange={(e) => handleInputChange("kabupaten_kota", e.target.value)} isError={isError && checkAttributeNull(detailLokasiData.kabupaten_kota)}/> */}
+                  <Dropdown
+                    placeholder="Contoh: Pesanggrahan"
+                    disabled={true}
+                    label="Kecamatan"
+                    data={[]}
+                    className="w-full"
+                    required={true}
+                    value={kecDropdown}
+                    onChange={handleKecDropdownChange}
+                  />
                 </div>
                 <div className="w-[50%]">
-                  <Dropdown placeholder="Contoh: Ulujami" disabled={true} label="Kelurahan/Desa" data={dataDesa} className="w-full" required={true} value={desaDropdown} onChange={handleDesaDropdownChange} isError={isError && checkAttributeNull(desaDropdown)} />
-                  {/* <TextField label="Provinsi" placeholder="Provinsi" required={true} className="w-full" value={detailLokasiData.provinsi} onChange={(e) => handleInputChange("provinsi", e.target.value)} isError={isError && checkAttributeNull(detailLokasiData.provinsi)}/> */}
+                  <Dropdown
+                    placeholder="Contoh: Ulujami"
+                    disabled={true}
+                    label="Kelurahan/Desa"
+                    data={[]}
+                    className="w-full"
+                    required={true}
+                    value={desaDropdown}
+                    onChange={handleDesaDropdownChange}
+                  />
                 </div>
               </div>
 
-              <TextField label="Kode Pos" placeholder="Kode Pos" disabled={true} type="number" required={true} className="w-full" value={detailLokasiData.kode_pos} onChange={(e) => handleInputChange('kode_pos', e.target.value)} isError={isError && checkAttributeNull(detailLokasiData.kode_pos)} />
-              {/* <Dropdown placeholder="Contoh: Paragon" label="Customer" className="w-full text-neutral-60" required={true} data={[]} value={customerDropdown} isError={isError && checkAttributeNull(customerDropdown)} disabled={true} /> */}
+              <TextField
+                label="Kode Pos"
+                placeholder="Kode Pos"
+                disabled={true}
+                type="number"
+                required={true}
+                className="w-full"
+                value={detailLokasiData.kode_pos}
+                onChange={(e) => handleInputChange('kode_pos', e.target.value)}
+              />
 
               <div className="flex justify-center items-center">
                 <div className="w-[50%]">
-                  <TextField label="Jam Buka Toko" placeholder="Jam Buka Toko" disabled={true} type="time" required={true} className="w-full max-h-[40px]" value={detailLokasiData.open_hour} onChange={(e) => handleInputChange('open_hour', e.target.value)} isError={isError && checkAttributeNull(detailLokasiData.open_hour)} />
+                  <TextField
+                    label="Jam Buka Toko"
+                    placeholder="Jam Buka Toko"
+                    disabled={true}
+                    type="time"
+                    required={true}
+                    className="w-full max-h-[40px]"
+                    value={detailLokasiData.open_hour}
+                    onChange={(e) => handleInputChange('open_hour', e.target.value)}
+                  />
                 </div>
                 <div className="w-[50%]">
-                  <TextField label="Jam Tutup Toko" placeholder="Jam Tutup Toko" disabled={true} type="time" required={true} className="w-full max-h-[40px]" value={detailLokasiData.close_hour} onChange={(e) => handleInputChange('close_hour', e.target.value)} isError={isError && checkAttributeNull(detailLokasiData.close_hour)} />
+                  <TextField
+                    label="Jam Tutup Toko"
+                    placeholder="Jam Tutup Toko"
+                    disabled={true}
+                    type="time"
+                    required={true}
+                    className="w-full max-h-[40px]"
+                    value={detailLokasiData.close_hour}
+                    onChange={(e) => handleInputChange('close_hour', e.target.value)}
+                  />
                 </div>
               </div>
 
-              {/* <Dropdown placeholder="Contoh: Supermarket" label="Tipe Lokasi" className="w-full" required={true} data={dataTipeLokasi} value={tipeLokasiDropdown} onChange={handleTipeLokasiDropdownChange} isError={isError && checkAttributeNull(tipeLokasiDropdown)} /> */}
-
-              <TextField label="Service Time Saat Ini" disabled={true} placeholder="Contoh: 15" type="number" className="w-full" value={detailLokasiData.service_time} onChange={(e) => handleInputChange('service_time', e.target.value)} />
+              <TextField
+                label="Service Time Saat Ini"
+                disabled={true}
+                placeholder="Contoh: 15"
+                type="number"
+                className="w-full"
+                value={detailLokasiData.service_time}
+                onChange={(e) => handleInputChange('service_time', e.target.value)}
+              />
             </div>
           </LoadScript>
         </div>
-
-        {/* <div className="flex justify-center gap-4 pt-4">
-          <Button className="text-button btn-primary-outline" label="Kembali" onClick={() => navigate('/lokasi')} />
-          <Button className="text-button btn-primary" label="Simpan" onClick={handleSubmit} />
-        </div> */}
       </div>
     </div>
   )
