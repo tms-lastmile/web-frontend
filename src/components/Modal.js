@@ -1,10 +1,7 @@
 import { Dialog, Transition } from '@headlessui/react'
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment } from 'react'
 import { BiSolidError, BiErrorCircle } from 'react-icons/bi';
-import {BsX, BsPencilSquare} from 'react-icons/bs';
-import { Dropdown } from './Dropdown';
-import axiosAuthInstance from '../utils/axios-auth-instance';
-import { checkAttributeNull } from '../utils/utils';
+import { BsX } from 'react-icons/bs';
 import { useNavigate } from 'react-router-dom';
 
 function formatDateETA(dateTimeString) {
@@ -21,7 +18,6 @@ function formatKM(meter) {
   var numMeter = parseInt(meter);
   return ((numMeter/1000).toFixed(3));
 }
-
 
 function Modal({variant, title, description, warningDesc, leftButtonText, rightButtonText, onClickRight, onClickLeft, isOpen, closeModal}) {
   return (
@@ -99,35 +95,30 @@ function Modal({variant, title, description, warningDesc, leftButtonText, rightB
   )
 }
 
-function ModalSelectPriority({ isOpen, closeModal, importTable = false }) {
+function ModalSelectPriority({ isOpen, closeModal}) {
   const navigate = useNavigate();
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-500 bg-opacity-50">
-        {/* Modal content */}
         <div className="bg-white p-6 rounded-lg shadow-lg w-1/2 relative">
-          {/* Close button */}
           <button
             onClick={closeModal}
             className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
           >
-            &times; {/* "X" character for close button */}
+            &times;
           </button>
           
           <div className="text-center mb-4">
             <h2 className="text-xl font-semibold">Pilih Prioritas Optimisasi</h2>
-            {/* Add any content for the modal here */}
           </div>
 
-          {/* Flexbox set to column to arrange buttons vertically */}
           <div className="flex flex-col space-y-4">
             <button
               onClick={() => {
-                // Handle first button action
                 console.log('First Button clicked');
                 closeModal();
-                navigate('/pengiriman/select-do-priority', {
+                navigate('/pengiriman/select-do-automate', {
                   state: { optimizationType: 'distance' },
                 });              }}
               className="flex items-center px-4 py-2 bg-white text-primary-hover border border-primary-hover rounded-lg shadow-md hover:bg-primary-hover hover:text-white"
@@ -136,10 +127,9 @@ function ModalSelectPriority({ isOpen, closeModal, importTable = false }) {
             </button>
             <button
               onClick={() => {
-                // Handle second button action
                 console.log('Second Button clicked');
                 closeModal();
-                navigate('/pengiriman/select-do-priority', {
+                navigate('/pengiriman/select-do-automate', {
                   state: { optimizationType: 'load' },
                 });  
               }}
@@ -149,10 +139,9 @@ function ModalSelectPriority({ isOpen, closeModal, importTable = false }) {
             </button>
             <button
               onClick={() => {
-                // Handle third button action
                 console.log('Third Button clicked');
                 closeModal();
-                navigate('/pengiriman/select-do-priority', {
+                navigate('/pengiriman/select-do-automate', {
                   state: { optimizationType: 'balance' },
                 });  
               }}
@@ -320,20 +309,6 @@ function ModalDetailLokasi({lokasi, isOpen, closeModal, importTable=false}) {
                           <p className='m-p-reg'>{lokasi.dc}</p>
                         </div>
                       </>): (<>
-                        {/* <div className='col-span-1 text-left m-p-med border-b border-neutral-40 p-2'>
-                          <p className='m-p-med'>Asal Perusahaan</p>
-                        </div> */}
-                        {/* <div className='col-span-3 text-right m-p-reg border-b border-neutral-40 p-2'>
-                          <p className='m-p-reg'>{lokasi.company.name}</p>
-                        </div> */}
-                        
-                        {/* <div className='col-span-2 text-left m-p-med border-b border-neutral-40 p-2'>
-                          <p className='m-p-med'>Distribution Center (DC)</p>
-                        </div> */}
-                        {/* <div className='col-span-2 text-right m-p-reg border-b border-neutral-40 p-2'>
-                          <p className='m-p-reg'>{lokasi.dc.name}</p>
-                        </div> */}
-
                         {importTable? null : <>
                           <div className='col-span-2 text-left m-p-med border-b border-neutral-40 p-2'>
                             <p className='m-p-med'>Jarak ke Distribution Center (DC)</p>
@@ -353,7 +328,7 @@ function ModalDetailLokasi({lokasi, isOpen, closeModal, importTable=false}) {
   )
 }
 
-function ModalDetailLokasiFailed({lokasi, isOpen, closeModal, importTable=false}) {
+function ModalDetailLokasiFailed({lokasi, isOpen, closeModal}) {
   return (
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-50" onClose={closeModal}>
@@ -436,7 +411,6 @@ function ModalDetailLokasiFailed({lokasi, isOpen, closeModal, importTable=false}
                           }
                         </p>
                       </div>
-                    
                     </div>
                 </Dialog.Panel>
               </Transition.Child>
@@ -529,35 +503,17 @@ function ModalDetailTruk({truk, isOpen, closeModal, importTable=false}) {
                             truk.type.name === "BLIND_VAN" ? "Blind Van" :
                             truk.type.name === "CDE" ? "CDE" :
                             truk.type.name === "CDD" ? "CDD" :
-                            truk.type.name // Default to original name if no match
+                            truk.type.name
                           ) : ''}
                         </p>
                       </div>
 
-
-{/*                       
-                      {importTable === true ? null : 
-                        <> */}
                         <div className='col-span-2 text-left m-p-med border-b border-neutral-40 p-2'>
                           <p className='m-p-med'>Volume Maksimal Kendaraan (ml)</p>
                         </div>
                         <div className='col-span-2 text-right m-p-reg border-b border-neutral-40 p-2 break-all'>
                           <p className='m-p-reg'>{truk.max_individual_capacity_volume}</p>
                         </div>
-                        {/* <div className='col-span-2 text-left m-p-med border-b border-neutral-40 p-2'>
-                          <p className='m-p-med'>Pallet Maksimal Kendaraan</p>
-                        </div>
-                        <div className='col-span-2 text-right m-p-reg border-b border-neutral-40 p-2 break-all'>
-                          <p className='m-p-reg'>{truk.max_capacity_pallet}</p>
-                        </div> */}
-                        {/* </> */}
-                      {/* } */}
-                      {/* <div className='col-span-1 text-left m-p-med border-b border-neutral-40 p-2'>
-                        <p className='m-p-med'>Asal Perusahaan</p>
-                      </div>
-                      <div className='col-span-3 text-right m-p-reg border-b border-neutral-40 p-2 break-all'>
-                        <p className='m-p-reg'>{truk.company_name}</p>
-                      </div> */}
                       <div className='col-span-2 text-left m-p-med border-b border-neutral-40 p-2'>
                         <p className='m-p-med'>Distribution Center (DC) </p>
                       </div>
@@ -729,30 +685,6 @@ function ModalDetailOrder({order, isOpen, closeModal, importTable = false}) {
                       <div className='col-span-3 text-right m-p-reg border-b border-neutral-40 p-2 pr-1'>
                         <p className='m-p-reg'>{order.loc_dest}</p>
                       </div>
-
-                      {/* <div className='grid grid-cols-4 col-span-2'>
-                        <div className='col-span-1 text-left m-p-med border-b border-neutral-40 p-2'>
-                          <p className='m-p-med'>Asal</p>
-                        </div>
-                        <div className='col-span-3 text-right m-p-reg border-b border-neutral-40 border-r p-2 pr-1'>
-                          <p className='m-p-reg'>{order.dc}</p>
-                        </div>
-                      </div>
-                      <div className='grid grid-cols-4 col-span-2'>
-                        <div className='col-span-1 text-left m-p-med border-b border-neutral-40 p-2 pl-1'>
-                          <p className='m-p-med'>Destinasi</p>
-                        </div>
-                        <div className='col-span-3 text-right m-p-reg border-b border-neutral-40 p-2'>
-                          <p className='m-p-reg'>{order.loc_dest}</p>
-                        </div>
-                      </div> */}
-                      
-                      {/* <div className='col-span-2 text-left m-p-med border-b border-neutral-40 p-2'>
-                        <p className='m-p-med'>Nomor Surat Jalan</p>
-                      </div>
-                      <div className='col-span-2 text-right m-p-reg border-b border-neutral-40 p-2'>
-                        <p className='m-p-reg'>{order.manifest != null ? order.manifest.manifest_num : "-"}</p>
-                      </div> */}
                       <div className='col-span-2 text-left m-p-med border-b border-neutral-40 p-2'>
                         <p className='m-p-med'>Nomor Pengiriman</p>
                       </div>
@@ -787,7 +719,7 @@ function ModalDetailOrder({order, isOpen, closeModal, importTable = false}) {
   )
 }
 
-function ModalDetailUser({user, isOpen, closeModal, importTable=false}) {
+function ModalDetailUser({user, isOpen, closeModal}) {
   return (
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-50" onClose={closeModal}>
@@ -885,164 +817,4 @@ function ModalDetailUser({user, isOpen, closeModal, importTable=false}) {
   )
 }
 
-function ModalMoveOrder({variant, 
-  title = 'Pindahkan Order', 
-  description = "Anda yakin ingin keluar dari akun?", 
-  warningDesc = "Dengan memindahkan order ke truk lain, rute pengiriman juga akan berubah.", 
-  leftButtonText = "Batal", 
-  rightButtonText = "Yakin" , 
-  onClickRight, onClickLeft, isOpen, closeModal, order}) {
-    
-  // console.log(order);
-  let navigate = useNavigate();
-  const [dataTruk, setDataTruk] = useState([]);
-  const [isError, setIsError] = useState(false); 
-  const [isOpenError, setIsOpenError] = useState(false); 
-  const [isOpenSuccess, setIsOpenSuccess] = useState(false); 
-  
-  useEffect(() => {
-    async function fetchDataTruk(){
-        if (dataTruk.length === 0) {
-            axiosAuthInstance.get("/api/manifests").then((response) => {
-                const trukData = response.data.data.map((item) => ({
-                    value: item.id,
-                    name: item.truck_id,
-                }));
-                setDataTruk(trukData);
-                // setShowLoading(false)
-            });
-        }
-    }
-
-    fetchDataTruk();
-  }, [dataTruk]);
-
-  const [trukDropdown, setTrukDropdown] = useState(null);
-
-  const handleTrukDropdownChange = (selectedValue) => {
-      setTrukDropdown(selectedValue);
-      // setUpdatePengirimanData({
-      //   ...updatePengirimanData,
-      //   status: selectedValue.value,
-      // });
-  };
-
-  const handleSubmit = async (e) => {
-    // setShowLoading(true)
-    if (trukDropdown == null) {
-        setIsError(true)
-    }
-    else {
-      e.preventDefault();
-      // console.log(order);
-      const moveOrderFormat = {
-          shipment_id: order.manifest.shipment_id,
-          manifest_origin_id: order.manifest.id,
-          manifest_destination_id: trukDropdown.value,
-          orders_moved: [order.id],
-          locations_dest: [order.loc_dest_id],
-      };
-      axiosAuthInstance
-      .put(`/api/order-move`, moveOrderFormat)
-      .then((response) => {
-          if (response.status == 200) {
-              // setShowLoading(false)
-              // console.log(response);
-              setIsOpenSuccess(true)
-          };
-      }
-      ).catch(err => {
-          setIsOpenError(true)
-          // setShowLoading(false)
-      });
-  }
-}
-
-
-  return (
-      <>
-        <Modal variant="primary" isOpen={isOpenSuccess} closeModal={() => setIsOpenSuccess(false)} description="Berhasil memindahkan order." rightButtonText="Selesai" onClickRight={
-          () => window.location.reload()
-        }/>
-        <Modal variant="danger" isOpen={isOpenError} closeModal={() => setIsOpenError(false)} description="Gagal memindahkan order." rightButtonText="Ulangi"/>
-
-        <Transition appear show={isOpen} as={Fragment}>
-          <Dialog as="div" className="relative z-50" onClose={closeModal}>
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <div className="fixed inset-0 bg-black bg-opacity-25" />
-            </Transition.Child>
-
-            <div className="fixed inset-0 overflow-y-auto">
-              <div className="flex min-h-full items-center justify-center p-4 text-center">
-                <Transition.Child
-                  as={Fragment}
-                  enter="ease-out duration-300"
-                  enterFrom="opacity-0 scale-95"
-                  enterTo="opacity-100 scale-100"
-                  leave="ease-in duration-200"
-                  leaveFrom="opacity-100 scale-100"
-                  leaveTo="opacity-0 scale-95"
-                >
-                  <Dialog.Panel className="w-full max-w-[578px] transform rounded-lg bg-white p-6 text-center align-middle shadow-xl transition-all">
-                      <Dialog.Title as="p" className="text-modal-title flex flex-col items-center justify-center">   
-                        <div className='rounded-full bg-primary text-white p-2 mb-3'>
-                            <BsPencilSquare className="text-2xl" />
-                        </div> 
-                        <span className={`${title == null ? '!hidden' : null}`}>{title}</span>
-                      </Dialog.Title>
-                      <div className={`${warningDesc == null ? '!hidden' : null} mt-4 rounded-lg bg-danger-surface px-6 py-4 text-left align-middle`}>
-                          <p className={`s-p-med text-danger-hover flex`}>
-                              <BiErrorCircle className="text-lg mr-1" />
-                              Peringatan
-                          </p>
-                          <p className={`s-p-reg text-danger-hover pt-2`}>
-                              {warningDesc}
-                          </p>
-                      </div>
-
-                      <div className='flex flex-col mt-5'>
-                        <div class="grid grid-cols-4">
-                          <div className='col-span-1 text-left border-b border-neutral-40 p-2'>
-                            <p className='m-p-reg'>Nomor Order</p>
-                          </div>
-                          <div className='col-span-3 text-right m-p-reg border-b border-neutral-40 p-2'>
-                            <p className='m-p-reg'>{order.order_num}</p>
-                          </div>
-
-                          <div className='col-span-1 text-left border-b border-neutral-40 p-2'>
-                            <p className='m-p-reg'>Asal Truk</p>
-                          </div>
-                          <div className='col-span-3 text-right m-p-reg border-b border-neutral-40 p-2'>
-                            <p className='m-p-reg'>Truk {order.manifest.truck_id}</p>
-                          </div>
-                        </div>
-
-                        <div className='text-left my-3'>
-                          <Dropdown className="w-full text-left" placeholder="Contoh: Truk 1" label="Truk Baru" data={dataTruk} required={true} value={trukDropdown} onChange={handleTrukDropdownChange} isError={isError && checkAttributeNull(trukDropdown)}/>
-                        </div>
-
-                        <div className="flex w-full">
-                            <button type="button" className={`${leftButtonText == null ? '!hidden' : null} text-modal-button btn-primary-outline`} style={{ width: '100%' }} onClick={onClickLeft == null ? closeModal : onClickLeft}>{leftButtonText}</button>
-                            <button type="button" className={`text-modal-button btn-primary`} style={{ width: '100%' }} onClick={handleSubmit}>{rightButtonText}</button>
-                        </div>
-                      </div>
-                  </Dialog.Panel>
-                </Transition.Child>
-              </div>
-            </div>
-          </Dialog>
-        </Transition>
-      </>
-  )
-}
-
-
-export {Modal, ModalDetailLokasi, ModalDetailLokasiFailed, ModalDetailTruk, ModalDetailOrder, ModalDetailUser, ModalMoveOrder, ModalSelectPriority};
+export {Modal, ModalDetailLokasi, ModalDetailLokasiFailed, ModalDetailTruk, ModalDetailOrder, ModalDetailUser, ModalSelectPriority};

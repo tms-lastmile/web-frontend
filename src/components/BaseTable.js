@@ -4,7 +4,7 @@ import { TableButton, PageButton, classNames } from './TableUtils'
 import { Button } from '../components/Button'
 import { Link, useNavigate } from 'react-router-dom'
 import { BsSearch, BsEye, BsPencilSquare, BsChevronExpand, BsChevronDown, BsChevronUp, BsPlusLg, BsCloudUpload, BsCalendarEvent, BsCheckLg, BsX } from 'react-icons/bs'
-import { ModalDetailTruk, ModalDetailLokasi, ModalDetailOrder, ModalDetailUser, ModalMoveOrder } from './Modal'
+import { ModalDetailTruk, ModalDetailLokasi, ModalDetailOrder, ModalDetailUser } from './Modal'
 import axiosAuthInstance from '../utils/axios-auth-instance'
 import UpdatePengiriman from '../pages/Pengiriman/update-pengiriman'
 import DatePicker from 'react-datepicker'
@@ -506,18 +506,7 @@ export function ActionButtons({ value, createCluster = false, viewPengiriman = f
       {lokasiData.id === null ? null : <ModalDetailLokasi isOpen={isOpenDetail} closeModal={() => setIsOpenDetail(false)} lokasi={lokasiData} />}
       {trukData.id === null ? null : <ModalDetailTruk isOpen={isOpenDetailTruk} closeModal={() => setIsOpenDetailTruk(false)} truk={trukData} />}
       {orderData.id === null ? null : <ModalDetailOrder isOpen={isOpenDetailOrder} closeModal={() => setIsOpenDetailOrder(false)} order={orderData} />}
-      {orderData.id !== null && viewPengiriman === true ? (
-        <ModalMoveOrder
-          isOpen={isOpenMoveTruck}
-          closeModal={() => setIsOpenMoveTruck(false)}
-          order={orderData}
-          // onClickRight={() => {
-          //     // setIsOpenNoWarning(true)
-          //     // setIsOpenWarning(false)
-          //     }}
-          leftButtonText="Batal"
-        />
-      ) : null}
+
       {userData.id === null ? null : <ModalDetailUser isOpen={isOpenDetailUser} closeModal={() => setIsOpenDetailUser(false)} user={userData} />}
       {pengirimanData.id !== null && openUpdate ? <UpdatePengiriman isOpen={isOpenUpdatePengiriman} closeModal={() => closeUpdatePengiriman()} pengiriman={pengirimanData} fetchData={refetchData} /> : null}
 

@@ -1,13 +1,11 @@
 import DatePicker from 'react-datepicker'
 import axiosAuthInstance from '../../utils/axios-auth-instance'
 import 'react-datepicker/dist/react-datepicker.css'
-import { BaseTablePagination, ActionButtonsPagination, BaseTablePaginationShipment } from '../../components/BaseTablePagination'
-import BaseTable, { SelectColumnFilter, StatusPill, ActionButtons } from '../../components/BaseTable'
+import { BaseTablePaginationShipment } from '../../components/BaseTablePagination'
+import { SelectColumnFilter } from '../../components/BaseTable'
 import React, { useEffect, useState } from 'react'
-import { FaCalendar, FaCalendarAlt, FaClipboard } from 'react-icons/fa'
+import { FaCalendarAlt, FaClipboard } from 'react-icons/fa'
 import { Loading } from '../../components/Loading'
-import Button from '../../components/Button'
-import axios from 'axios'
 import jwtDecode from 'jwt-decode'
 import { useNavigate } from 'react-router-dom'
 
@@ -29,7 +27,7 @@ function DoSelectAutomate() {
       setLoading(true)
       const formattedStartDate = new Date(start_date).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' })
       const formattedEndDate = new Date(end_date).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' })
-      const response = await axiosAuthInstance.get(`/delivery-order?skip=${(page - 1) * limit}&limit=${limit}&start_date=${formattedStartDate}&end_date=${formattedEndDate}&status=READY`)
+      const response = await axiosAuthInstance.get(`/delivery-orders?skip=${(page - 1) * limit}&limit=${limit}&start_date=${formattedStartDate}&end_date=${formattedEndDate}&status=READY`)
       const { deliveryOrders, total } = response.data.data
       setDataDO(deliveryOrders)
       setTotalPages(Math.ceil(total / limit))
@@ -49,7 +47,7 @@ function DoSelectAutomate() {
   const handleOtomatisasi = async () => {
     try {
       const response = await axiosAuthInstance.post(
-        `/opt/load`,
+        `priority-opt`,
         { delivery_orders_id: selectedDO },
         { headers: { dc_id: dc_id } }
       );
@@ -130,7 +128,7 @@ function DoSelectAutomate() {
         filter: 'includes'
       }
     ],
-    [selectedDO] // Recalculate when selectedDO changes
+    [selectedDO]
   )
 
   const handlePageChange = (page) => {
@@ -149,7 +147,6 @@ function DoSelectAutomate() {
   return (
     <>
       <div className="w-full mx-auto space-y-5 mt-4 visible pt-10 px-10">
-        {/* Section 1: Atur Tanggal Pengiriman */}
         <div className="w-full bg-white border rounded-lg shadow-md">
           <div className="bg-primary-hover text-white px-4 py-3 rounded-t-lg">
             <h2 className="text-lg font-semibold">Atur Tanggal Pengiriman</h2>
@@ -165,13 +162,10 @@ function DoSelectAutomate() {
             </div>
           </div>
         </div>
-        {/* Section 2: Daftar Delivery Order */}
         <div className="w-full bg-white border rounded-lg shadow-md">
-          {/* Header */}
           <div className="bg-primary-hover text-white px-4 py-3 rounded-t-lg">
             <h2 className="text-lg font-semibold">Daftar Delivery Order</h2>
           </div>
-          {/* Content */}
           <div className="px-4 py-1">
             <p className="mb-3 mt-3">Pilih DO yang ingin dimasukkan ke dalam pengirman pada tanggal di atas.</p>
 
