@@ -7,11 +7,13 @@ import React, { useEffect, useState } from 'react'
 import { FaCalendarAlt, FaClipboard } from 'react-icons/fa'
 import { Loading } from '../../components/Loading'
 import jwtDecode from 'jwt-decode'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 function DoSelectAutomate() {
   const [selectedDate, setSelectedDate] = useState(new Date())
   const navigate = useNavigate()  
+  const location = useLocation();
+  const { optimizationType } = location.state || {};
 
   const [selectedStartDate, setSelectedStartDate] = useState(new Date())
   const [selectedEndDate, setSelectedEndDate] = useState(new Date())
@@ -39,7 +41,6 @@ function DoSelectAutomate() {
     }
   }
 
-
   const [showLoading, setShowLoading] = useState(false)
   const [dataDO, setDataDO] = useState([])
   const [dc_id, setDcId] = useState("")
@@ -48,8 +49,15 @@ function DoSelectAutomate() {
     try {
       const response = await axiosAuthInstance.post(
         `priority-opt`,
-        { delivery_orders_id: selectedDO },
-        { headers: { dc_id: dc_id } }
+        {
+          delivery_orders_id: selectedDO,    
+          priority: optimizationType  
+        },
+        {
+          headers: {
+            dc_id : dc_id
+          }
+        }
       );
   
       console.log('Pengiriman berhasil dibuat:', response.data);

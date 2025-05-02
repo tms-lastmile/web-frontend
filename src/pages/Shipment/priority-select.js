@@ -62,7 +62,7 @@ function DoSelectPriority() {
   const handleManual = async () => {
     try {
       const response = await axiosAuthInstance.post(
-        `/opt/priority`, // Endpoint API
+        `priority-opt`,
         {
           delivery_orders_id: selectedDO,    
           priority: optimizationType  
@@ -79,11 +79,10 @@ function DoSelectPriority() {
     } catch (error) {
       console.error('Gagal membuat pengiriman:', error.response?.data?.message || error.message);
     }
-    // localStorage.setItem('responseData', JSON.stringify(response.data));
     navigate('/pengiriman/otomatisasi')  
 
   };
-  
+
 
   useEffect(() => {
     setDcId(jwtDecode(sessionStorage.getItem('token')).role.dc_id)
