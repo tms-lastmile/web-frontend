@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { LoadScript, GoogleMap, DirectionsService, DirectionsRenderer } from "@react-google-maps/api";
 import { Modal } from "../../components/Modal"; 
 import axiosAuthInstance from '../../utils/axios-auth-instance';
@@ -7,6 +7,11 @@ function DetailPengiriman({ pengiriman, updatePengirimanList }) {
   const [modalKonfirmasi, setModalKonfirmasi] = useState(false);
   const [directions, setDirections] = useState(null);
   const [directionsRequested, setDirectionsRequested] = useState(false)
+
+  useEffect(() => {
+    setDirections(null);              // reset rute
+    setDirectionsRequested(false);   // izinkan request rute baru
+  }, [pengiriman]);
 
   const directionsCallback = (response) => {
     if (response !== null && response.status === 'OK') {
@@ -33,7 +38,7 @@ function DetailPengiriman({ pengiriman, updatePengirimanList }) {
 
   const handleSimpanPengiriman = async () => {
     try {
-      await axiosAuthInstance.patch(`/shipments/simpan/${pengiriman.shipment_num}`, {
+      await axiosAuthInstance.patch(`/shipment/simpan/${pengiriman.shipment_num}`, {
         action: 'Simpan'
       });
       updatePengirimanList(pengiriman.shipment_num, 'saved');
@@ -60,8 +65,8 @@ function DetailPengiriman({ pengiriman, updatePengirimanList }) {
   const additionalInfo = pengiriman.additional_info || [];
   const updatedLocationRoutes = locationRoutes.map(route => {
     const matchingDOs = dos
-        .filter(doItem => doItem.loc_dest_id === route.id) // Cocokkan loc_dest_id dengan id route
-        .map(doItem => doItem.delivery_order_num); // Ambil hanya delivery_order_num
+        .filter(doItem => doItem.loc_dest_id === route.id)
+        .map(doItem => doItem.delivery_order_num);
 
     return {
         ...route, 
@@ -75,10 +80,9 @@ function DetailPengiriman({ pengiriman, updatePengirimanList }) {
     height: "400px",
   };
 
-  const center = locationRoutes.length > 0 ? {
-    lat: locationRoutes[0].latitude,
-    lng: locationRoutes[0].longitude,
-  } : { lat: 0, lng: 0 };
+  const center = locationRoutes.length > 0
+  ? { lat: locationRoutes[0].latitude, lng: locationRoutes[0].longitude }
+  : { lat: 0, lng: 0 };
 
   return (
     <div className="w-2/3 space-y-4">
@@ -86,7 +90,8 @@ function DetailPengiriman({ pengiriman, updatePengirimanList }) {
         <h2 className="text-lg font-medium mb-4">Peta Rute</h2>
         <div className="h-[400px] bg-gray-100 rounded-lg mb-4">
         <LoadScript googleMapsApiKey="AIzaSyDe-GwHIfh0zWB4B0mjzFKQBuklOGbHxoE">
-          <GoogleMap
+        <GoogleMap
+            key={pengiriman.shipment_num} // force remount saat shipment berubah
             mapContainerStyle={mapContainerStyle}
             center={center}
             zoom={15}
