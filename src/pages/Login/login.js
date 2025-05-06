@@ -1,17 +1,13 @@
 import React from 'react';
 import { useState } from "react";
-import login from "../../images/loginn.png";
 import { useNavigate } from "react-router-dom";
 import { BsBusFront,BsFillEyeFill,BsFillEyeSlashFill,BsExclamationCircle } from "react-icons/bs";
 import { Button } from '../../components/Button';
 import axios from 'axios';
-import axiosAuthInstance from '../../utils/axios-auth-instance';
-import { useUser } from '../../utils/userContext';
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { setUserRole } = useUser();
 
   const [passType, setPassType] = useState("password");
   const [seePassword, setSeePassword] = useState(false);
@@ -65,12 +61,8 @@ const Login = () => {
     }
   };
 
-
-
   return (
     <div className='flex h-screen w-full justify-center items-center'>
-      {/* <img src={login} className="w-[70%] max-h-[100%] object-cover"/> */}
-      {/* <div className='flex flex-col justify-center items-center fixed h-screen py-[5%] px-10 bg-neutral-10'> */}
         <div className='flex flex-col w-full h-full justify-center items-center max-w-[20rem] gap-4'>
           <div className='flex space-x-2 '>
             <BsBusFront  size={50}></BsBusFront>
@@ -136,8 +128,6 @@ const Login = () => {
             </div>
           </div>
         </div>
-        {/* <p className="text-[16px] text-center font-semibold">All Right Reserved © 2023 PT Paragon Technology and Innovation</p> */}
-      {/* </div> */}
     </div>
   )
 }

@@ -15,7 +15,6 @@ function ViewAllRoleAdmin() {
       const decodedToken = jwtDecode(tokenFromSession)
       setUserRole(decodedToken.role.name)
 
-      // Moving axios request within a check for 'Super' role
       if (decodedToken.role.name === 'Super' && dataRole.length === 0) {
         axiosAuthInstance.get('administrator/roles').then((response) => {
           setDataRole(response.data.data)
