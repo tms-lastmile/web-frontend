@@ -23,6 +23,7 @@ import { ResultBuatPengiriman, ResultDetailPengiriman } from './pages/Pengiriman
 import DoSelectManualAdmin from './pages/Administrator/Shipment-Admin/manual-select';
 import DoSelectAutomate from './pages/Shipment/automate-select';
 import DoSelectManual from './pages/Shipment/manual-select';
+import VisualizationShipment from './pages/Pengiriman/visualisasi-pengiriman';
 
 function ProtectedRoutes() {
   const [userRole, setUserRole] = useState(null);
@@ -89,6 +90,10 @@ function ProtectedRoutes() {
           <Route path="/pengiriman/select-do-automate" element={<PrivateRoute><Sidebar shipment={true} title="Otomatisasi Pengiriman"><DoSelectAutomate /></Sidebar></PrivateRoute>} />
           <Route path="/pengiriman/select-do-manual" element={<PrivateRoute><Sidebar shipment={true} title="Pengiriman Manual"><DoSelectManual /></Sidebar></PrivateRoute>} />
           <Route path="/product-line" element={<PrivateRoute><Sidebar productLine={true} title="Daftar Product Line"><ViewAllProductLine /></Sidebar></PrivateRoute>} />
+          
+          {/* visualisasi pengiriman */}
+          <Route path="/pengiriman/visualisasi" element={<PrivateRoute><Sidebar pengiriman={true} title="Visualisasi Pengiriman"><VisualizationShipment /></Sidebar></PrivateRoute>} /> 
+          {/* <Route path="/pengiriman/visualisasi" element={<PrivateRoute><VisualizationShipment /></PrivateRoute>} />  */}
         </>
       )}
 
