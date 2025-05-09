@@ -34,21 +34,23 @@ function ProtectedRoutes() {
     const tokenFromSession = sessionStorage.getItem('token');
     if (!tokenFromSession) {
       navigate('/login');
-    } else {
-      try {
-        const decodedToken = jwtDecode(tokenFromSession);
-        setUserRole(decodedToken.role.name);
-
-        const pathName = location.pathname;
-        if (pathName === '/') {
-          navigate(decodedToken.role.name === 'Super' ? '/administrator/dashboard' : '/dashboard');
-        }
-      } catch (error) {
-        console.error('Invalid token:', error);
-        navigate('/login');
-      }
+      return;
     }
-  }, [navigate, location]);
+  
+    try {
+      const decodedToken = jwtDecode(tokenFromSession);
+      setUserRole(decodedToken.role.name);
+    } catch (error) {
+      console.error('Invalid token:', error);
+      navigate('/login');
+    }
+  }, [navigate]);
+  
+  useEffect(() => {
+    if (userRole && location.pathname === '/') {
+      navigate(userRole === 'Super' ? '/administrator/dashboard' : '/dashboard');
+    }
+  }, [userRole, location.pathname, navigate]);  
 
   return (
     <Routes>

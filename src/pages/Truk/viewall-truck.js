@@ -63,7 +63,7 @@ function ViewAllTrucks() {
         filter: 'includes'
       },
       {
-        Header: (props) => {
+        Header: () => {
           return (
             <>
               <div className="flex justify-center items-center text-center">Status</div>{' '}
@@ -92,7 +92,7 @@ function ViewAllTrucks() {
     <>
       <Loading visibility={showLoading} />
       <div className={`px-[50px] py-[30px] ${showLoading ? 'hidden' : 'visible'}`}>
-        <BaseTable columns={columns} data={dataTruk} dataLength={dataTruk.length} judul={`Truk`} />
+        <BaseTable columns={columns} data={dataTruk} dataLength={dataTruk.length} judul={`Daftar Truk`} />
       </div>
     </>
   )

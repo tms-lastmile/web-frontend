@@ -36,71 +36,71 @@ function ViewLokasi() {
   const [desaDropdown, setDesaDropdown] = useState(null)
 
   useEffect(() => {
-    async function fetchDataLokasi() {
-      if (lokasiId) {
-        try {
-          const response = await axiosAuthInstance.get(`/location/${lokasiId}`)
-          const responseData = response.data.data
-          const lokasiData = {
-            id: responseData.id,
-            name: responseData.name,
-            address: responseData.address,
-            desa_kelurahan: responseData.desa_kelurahan,
-            kecamatan: responseData.kecamatan,
-            kabupaten_kota: responseData.kabupaten_kota,
-            provinsi: responseData.provinsi,
-            kode_pos: responseData.kode_pos,
-            latitude: responseData.latitude,
-            longitude: responseData.longitude,
-            open_hour: responseData.open_hour.slice(11, 16),
-            close_hour: responseData.close_hour.slice(11, 16),
-            dc: responseData.dc,
-            service_time: responseData.service_time,
-            customer_name: responseData.is_dc ? null : responseData.customer.name,
-            is_dc: responseData.is_dc
-          }
-          setDetailLokasiData(lokasiData)
+    fetchDataLokasi()
+  }, [])
 
-          if (lokasiData.dc) {
-            setDCDropdown({
-              name: lokasiData.dc.name,
-              value: lokasiData.dc.id
-            })
-          }
-
-          if (lokasiData.provinsi) {
-            setProvDropdown({
-              name: lokasiData.provinsi,
-              value: null
-            })
-          }
-          if (lokasiData.kabupaten_kota) {
-            setKotaDropdown({
-              name: lokasiData.kabupaten_kota,
-              value: null
-            })
-          }
-          if (lokasiData.kecamatan) {
-            setKecDropdown({
-              name: lokasiData.kecamatan,
-              value: null
-            })
-          }
-          if (lokasiData.desa_kelurahan) {
-            setDesaDropdown({
-              name: lokasiData.desa_kelurahan,
-              value: null
-            })
-          }
-          setShowLoading(false)
-        } catch (error) {
-          console.error('Error fetching data:', error)
+  async function fetchDataLokasi() {
+    if (lokasiId) {
+      try {
+        const response = await axiosAuthInstance.get(`/location/${lokasiId}`)
+        const responseData = response.data.data
+        const lokasiData = {
+          id: responseData.id,
+          name: responseData.name,
+          address: responseData.address,
+          desa_kelurahan: responseData.desa_kelurahan,
+          kecamatan: responseData.kecamatan,
+          kabupaten_kota: responseData.kabupaten_kota,
+          provinsi: responseData.provinsi,
+          kode_pos: responseData.kode_pos,
+          latitude: responseData.latitude,
+          longitude: responseData.longitude,
+          open_hour: responseData.open_hour.slice(11, 16),
+          close_hour: responseData.close_hour.slice(11, 16),
+          dc: responseData.dc,
+          service_time: responseData.service_time,
+          customer_name: responseData.is_dc ? null : responseData.customer.name,
+          is_dc: responseData.is_dc
         }
+        setDetailLokasiData(lokasiData)
+
+        if (lokasiData.dc) {
+          setDCDropdown({
+            name: lokasiData.dc.name,
+            value: lokasiData.dc.id
+          })
+        }
+
+        if (lokasiData.provinsi) {
+          setProvDropdown({
+            name: lokasiData.provinsi,
+            value: null
+          })
+        }
+        if (lokasiData.kabupaten_kota) {
+          setKotaDropdown({
+            name: lokasiData.kabupaten_kota,
+            value: null
+          })
+        }
+        if (lokasiData.kecamatan) {
+          setKecDropdown({
+            name: lokasiData.kecamatan,
+            value: null
+          })
+        }
+        if (lokasiData.desa_kelurahan) {
+          setDesaDropdown({
+            name: lokasiData.desa_kelurahan,
+            value: null
+          })
+        }
+        setShowLoading(false)
+      } catch (error) {
+        console.error('Error fetching data:', error)
       }
     }
-
-    fetchDataLokasi()
-  }, [lokasiId])
+  }
 
   const handleProvDropdownChange = (selectedValue) => {
     setProvDropdown(selectedValue)
@@ -186,13 +186,15 @@ function ViewLokasi() {
     lng: detailLokasiData.longitude || 106.76117789050836
   }
 
+  const LIBRARIES = ['places'];
+
   return (
     <div className="relative h-full -z-10">
       <Loading visibility={showLoading} />
       <div className={`px-[50px] py-[30px] ${showLoading ? 'hidden' : 'visible'}`}>
         <div className="p-8 bg-white rounded-lg">
           <h4>Informasi Lokasi</h4>
-          <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_KEY} libraries={['places']}>
+          <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_KEY} libraries={LIBRARIES}>
             <div className="pt-4">
               {!detailLokasiData.is_dc && (
                 <TextField
