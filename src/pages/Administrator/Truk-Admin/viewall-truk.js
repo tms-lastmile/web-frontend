@@ -2,57 +2,26 @@ import BaseTable, { SelectColumnFilter, StatusPill, ActionButtons } from '../../
 import React, { useEffect, useState } from 'react'
 import { Loading } from '../../../components/Loading'
 import axiosAuthInstance from '../../../utils/axios-auth-instance'
-import jwtDecode from 'jwt-decode'
 
 function ViewAllTruksAdmin() {
   const [dataTruk, setDataTruk] = useState([])
   const [showLoading, setShowLoading] = useState(true)
-  const [userRole, setUserRole] = useState('')
-  const [dataFetched, setDataFetched] = useState(false) // New state to track data fetching
 
   useEffect(() => {
-    const tokenFromSession = sessionStorage.getItem('token')
-    if (tokenFromSession) {
-      const decodedToken = jwtDecode(tokenFromSession)
-      setUserRole(decodedToken.role.name)
-    }
-  }, []) // Dependensi kosong agar hanya dijalankan sekali saat komponen dimuat
+    axiosAuthInstance
+      .get('/administrator/trucks')
+      .then((response) => {
+        setDataTruk(response.data.data.trucks)
+        setShowLoading(false)
+      })
+      .catch((error) => {
+        console.error('Error fetching trucks:', error)
+        setShowLoading(false)
+      })
+  }, [])
 
-  useEffect(() => {
-    if (userRole === 'Super' && !dataFetched) {
-      axiosAuthInstance
-        .get('/administrator/trucks')
-        .then((response) => {
-          setDataTruk(response.data.data)
-          setShowLoading(false)
-          setDataFetched(true)
-        })
-        .catch((error) => {
-          console.error('Error fetching trucks:', error)
-          setShowLoading(false)
-        })
-    }
-  }, [userRole, dataFetched])
   const columns = React.useMemo(
     () => [
-      {
-        Header: 'ID Truk',
-        accessor: 'id',
-        Cell: (props) => {
-          const { original } = props.cell.row
-          return (
-            <>
-              <div
-                style={{
-                  textAlign: 'left'
-                }}
-              >
-                {props.value}
-              </div>{' '}
-            </>
-          )
-        }
-      },
       {
         Header: 'Pelat',
         accessor: 'plate_number',
@@ -63,13 +32,11 @@ function ViewAllTruksAdmin() {
         Header: 'Tipe',
         accessor: 'truck_type.name',
         filter: 'includes',
-        Cell: (props) => {
-          const truckTypeName = props.value
-          let displayName = truckTypeName
-          if (truckTypeName === 'BLIND_VAN') displayName = 'Blind Van'
-          else if (truckTypeName === 'CDE') displayName = 'CDE'
-          else if (truckTypeName === 'CDD') displayName = 'CDD'
-          return <div>{displayName}</div>
+        Cell: ({ value }) => {
+          if (value === 'BLIND_VAN') return <div>Blind Van</div>
+          if (value === 'CDE') return <div>CDE</div>
+          if (value === 'CDD') return <div>CDD</div>
+          return <div>{value}</div>
         }
       },
       {
@@ -79,21 +46,11 @@ function ViewAllTruksAdmin() {
         filter: 'includes'
       },
       {
-        Header: (props) => {
-          return (
-            <>
-              <div className="flex justify-center items-center text-center">Status</div>{' '}
-            </>
-          )
-        },
+        Header: () => <div className="flex justify-center items-center text-center">Status</div>,
         accessor: 'first_status',
-        Cell: (props) => {
-          return (
-            <>
-              <div className="flex justify-center items-center">{StatusPill({ value: props.value, type: 'Truk' })}</div>{' '}
-            </>
-          )
-        }
+        Cell: ({ value }) => (
+          <div className="flex justify-center items-center">{StatusPill({ value, type: 'Truk' })}</div>
+        )
       },
       {
         Header: 'Action',
@@ -108,7 +65,7 @@ function ViewAllTruksAdmin() {
     <>
       <Loading visibility={showLoading} />
       <div className={`px-[50px] py-[30px] ${showLoading ? 'hidden' : 'visible'}`}>
-        <BaseTable columns={columns} data={dataTruk} dataLength={dataTruk.length} judul={`Truk`} />
+        <BaseTable columns={columns} data={dataTruk} dataLength={dataTruk.length} judul="Truk (Admin)" />
       </div>
     </>
   )

@@ -611,8 +611,46 @@ export function SelectColumnFilter({ column: { filterValue, setFilter, preFilter
   )
 }
 
-export function BaseTable({ columns, data, dataLength = 0, judul, createCluster = false, viewPengiriman = false, orderDate }) {
-  const { getTableProps, getTableBodyProps, headerGroups, prepareRow, page, canPreviousPage, canNextPage, pageOptions, pageCount, gotoPage, nextPage, previousPage, setPageSize, state, preGlobalFilteredRows } = useTable({ columns, data }, useGlobalFilter, useFilters, useSortBy, usePagination)
+export function BaseTable({
+  columns,
+  data,
+  dataLength = 0,
+  judul,
+  createCluster = false,
+  viewPengiriman = false,
+  orderDate,
+  disablePagination = false // ✅ default false
+}) {
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    prepareRow,
+    rows,
+    page,
+    canPreviousPage,
+    canNextPage,
+    pageOptions,
+    pageCount,
+    gotoPage,
+    nextPage,
+    previousPage,
+    setPageSize,
+    state,
+    preGlobalFilteredRows
+  } = useTable(
+    {
+      columns,
+      data
+    },
+    useGlobalFilter,
+    useFilters,
+    useSortBy,
+    ...(disablePagination ? [] : [usePagination])
+  )
+
+  const visibleRows = disablePagination ? rows : page
+
   return (
     <>
       {dataLength > 0 ? (
@@ -630,28 +668,43 @@ export function BaseTable({ columns, data, dataLength = 0, judul, createCluster 
                         <tr {...headerGroup.getHeaderGroupProps()}>
                           <th className="px-[10px] py-3 text-left text-neutral-10 font-semibold text-[16px] tracking-wider">No</th>
                           {headerGroup.headers.map((column) => (
-                            <th scope="col" className={!createCluster ? `px-[10px] py-3 text-left text-neutral-10 font-semibold text-[16px] tracking-wider ` : `px-[10px] py-3 text-left text-black font-semibold text-[16px] tracking-wider border-[1px] border-primary-border`} {...column.getHeaderProps(column.getSortByToggleProps())}>
+                            <th
+                              {...column.getHeaderProps(column.getSortByToggleProps())}
+                              className={!createCluster
+                                ? `px-[10px] py-3 text-left text-neutral-10 font-semibold text-[16px] tracking-wider`
+                                : `px-[10px] py-3 text-left text-black font-semibold text-[16px] tracking-wider border-[1px] border-primary-border`
+                              }
+                            >
                               {column.render('Header')}
-                              {column.id === 'selection' && column.render('Summary')}
-                              <span>{column.render('Header') == 'ID Truk' || column.render('Header') == 'Pelat' || column.render('Header') == 'Tipe' || column.render('Header') == 'DC' || column.render('Header') == 'ID Lokasi' || column.render('Header') == 'Nama Lokasi' || column.render('Header') == 'Alamat Lokasi' || column.render('Header') == 'Nomor Order' || column.render('Header') == 'ETA' || column.render('Header') == 'Tanggal Order' || column.render('Header') == 'Asal' || column.render('Header') == 'Destinasi' || column.render('Header') == 'Volume (ml)' || column.render('Header') == 'Quantity' || column.render('Header') == 'Nama Role' || column.render('Header') == 'Perusahaan' ? column.isSorted ? column.isSortedDesc ? <BsChevronDown className="ml-2 inline-block"></BsChevronDown> : <BsChevronUp className=" ml-2 inline-block"></BsChevronUp> : <BsChevronExpand className=" ml-2 inline-block"></BsChevronExpand> : null}</span>
+                              <span>
+                                {[
+                                  'ID Truk', 'Pelat', 'Tipe', 'DC', 'ID Lokasi', 'Nama Lokasi', 'Alamat Lokasi',
+                                  'Nomor Order', 'ETA', 'Tanggal Order', 'Asal', 'Destinasi', 'Volume (ml)',
+                                  'Quantity', 'Nama Role', 'Perusahaan'
+                                ].includes(column.render('Header')) &&
+                                  (column.isSorted
+                                    ? column.isSortedDesc
+                                      ? <BsChevronDown className="ml-2 inline-block" />
+                                      : <BsChevronUp className="ml-2 inline-block" />
+                                    : <BsChevronExpand className="ml-2 inline-block" />
+                                  )}
+                              </span>
                             </th>
                           ))}
                         </tr>
                       ))}
                     </thead>
-                    <tbody {...getTableBodyProps()} className="bg-neutral-10 divide-y divide-gray-200 ">
-                      {page.map((row, i) => {
+                    <tbody {...getTableBodyProps()} className="bg-neutral-10 divide-y divide-gray-200">
+                      {visibleRows.map((row, i) => {
                         prepareRow(row)
                         return (
                           <tr {...row.getRowProps()}>
                             <td className="px-4 py-3 text-neutral-90 max-w-[100px] text-left text-m break-all truncate">{i + 1}</td>
-                            {row.cells.map((cell) => {
-                              return (
-                                <td {...cell.getCellProps()} className="px-4 py-3 text-neutral-90 max-w-[100px] text-left text-m break-all truncate">
-                                  {cell.render('Cell')}
-                                </td>
-                              )
-                            })}
+                            {row.cells.map((cell) => (
+                              <td {...cell.getCellProps()} className="px-4 py-3 text-neutral-90 max-w-[100px] text-left text-m break-all truncate">
+                                {cell.render('Cell')}
+                              </td>
+                            ))}
                           </tr>
                         )
                       })}
@@ -662,69 +715,42 @@ export function BaseTable({ columns, data, dataLength = 0, judul, createCluster 
             </div>
           </div>
 
-          <div className="py-3 flex items-center justify-between">
-            <div className="flex-1 flex justify-between sm:hidden">
-              <TableButton onClick={() => previousPage()} disabled={!canPreviousPage}>
-                Previous
-              </TableButton>
-              <TableButton onClick={() => nextPage()} disabled={!canNextPage}>
-                Next
-              </TableButton>
-            </div>
-            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-              <div className="flex space-x-2 ml-2 mb-3 mt-2 sm:items-center sm:justify-between">
-                <span className="text-sm text-gray-700">
-                  Halaman
-                  <span className="font-medium"> {state.pageIndex + 1}</span> dari
-                  <span className="font-medium"> {pageOptions.length}</span> | {' Total '} {preGlobalFilteredRows.length} | Tampilkan
-                </span>
-                <label>
-                  <select
-                    className="p-1 block w-full bg-opacity-25 rounded-[8px] border border-primary-hover text-primary-hover font-semibold text-sm"
-                    value={state.pageSize}
-                    onChange={(e) => {
-                      setPageSize(Number(e.target.value))
-                    }}
-                  >
-                    {[5, 10, 20, 30].map((pageSize) => (
-                      <option key={pageSize} value={pageSize}>
-                        {pageSize}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-              <div>
-                <nav className="relative mr-1 z-0 inline-flex -space-x-px" aria-label="Pagination">
-                  <PageButton className="rounded-[5px]" onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
-                    <span className="sr-only">First</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-                    </svg>
-                  </PageButton>
-                  <PageButton className="rounded-[5px]" onClick={() => previousPage()} disabled={!canPreviousPage}>
-                    <span className="sr-only">Previous</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </PageButton>
-                  <PageButton className="rounded-[5px]" onClick={() => nextPage()} disabled={!canNextPage}>
-                    <span className="sr-only">Next</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </PageButton>
-                  <PageButton className="rounded-[5px]" onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
-                    <span className="sr-only">Last</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                      <path fillRule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </PageButton>
-                </nav>
+          {!disablePagination && (
+            <div className="py-3 flex items-center justify-between">
+              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div className="flex space-x-2 ml-2 mb-3 mt-2 sm:items-center sm:justify-between">
+                  <span className="text-sm text-gray-700">
+                    Halaman
+                    <span className="font-medium"> {state.pageIndex + 1}</span> dari
+                    <span className="font-medium"> {pageOptions.length}</span> | {' Total '} {preGlobalFilteredRows.length} | Tampilkan
+                  </span>
+                  <label>
+                    <select
+                      className="p-1 block w-full bg-opacity-25 rounded-[8px] border border-primary-hover text-primary-hover font-semibold text-sm"
+                      value={state.pageSize}
+                      onChange={(e) => {
+                        setPageSize(Number(e.target.value))
+                      }}
+                    >
+                      {[5, 10, 20, 30].map((pageSize) => (
+                        <option key={pageSize} value={pageSize}>
+                          {pageSize}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                <div>
+                  <nav className="relative mr-1 z-0 inline-flex -space-x-px" aria-label="Pagination">
+                    <PageButton onClick={() => gotoPage(0)} disabled={!canPreviousPage} />
+                    <PageButton onClick={() => previousPage()} disabled={!canPreviousPage} />
+                    <PageButton onClick={() => nextPage()} disabled={!canNextPage} />
+                    <PageButton onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage} />
+                  </nav>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </>
       ) : (
         <div className="flex flex-col items-center">

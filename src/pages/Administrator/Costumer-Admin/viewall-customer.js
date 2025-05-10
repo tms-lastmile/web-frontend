@@ -14,7 +14,7 @@ function ViewAllCustomerAdmin() {
     const fetchCostumer = async (page, limit) => {
         setShowLoading(true)
         try{
-            const response = await axiosAuthInstance.get(`/administrator/customers?skip=${(page - 1) * limit}&limit=${limit}`)            
+            const response = await axiosAuthInstance.get(`/customers?skip=${(page - 1) * limit}&limit=${limit}`)            
             const { customers, total } = response.data.data
             setDataCostumer(customers)
             setTotalPages(Math.ceil(total / limit))

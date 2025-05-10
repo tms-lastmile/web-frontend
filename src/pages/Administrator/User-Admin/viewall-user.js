@@ -15,7 +15,7 @@ function ViewAllUserAdmin() {
       const decodedToken = jwtDecode(tokenFromSession)
       setUserRole(decodedToken.role.name)
     }
-  }, []) // Jalankan sekali saat komponen pertama kali di-mount
+  }, []) 
 
   useEffect(() => {
     
@@ -27,15 +27,13 @@ function ViewAllUserAdmin() {
         }
       } catch (error) {
         console.error(`Error: ${error.status} - ${error.message}`)
-        // setErrorMessage(`Error ${error.status}: ${error.message}`);
       }
     }
-  }, [userRole]) // Pengecekan dijalankan ulang saat userRole berubah
+  }, [userRole])
 
   useEffect(() => {
     if (dataUser.length === 0 && userRole === 'Super') {
       axiosAuthInstance.get('administrator/users').then((response) => {
-        //jangan lupa diganti api admin
         setDataUser(response.data.data)
         setShowLoading(false)
       })
@@ -60,11 +58,6 @@ function ViewAllUserAdmin() {
         accessor: 'role.name',
         Filter: SelectColumnFilter,
         filter: 'includes'
-      },
-      {
-        Header: 'Action',
-        accessor: (row) => ['User', row.id],
-        Cell: ActionButtons
       }
     ],
     []
@@ -74,7 +67,7 @@ function ViewAllUserAdmin() {
     <>
       <Loading visibility={showLoading} />
       <div className={`px-[50px] py-[30px] ${showLoading ? 'hidden' : 'visible'}`}>
-        <BaseTable columns={columns} data={dataUser} dataLength={dataUser.length} judul={`User`} />
+        <BaseTable columns={columns} data={dataUser} dataLength={dataUser.length} judul={`User`} disablePagination={true} />
       </div>
     </>
   )

@@ -1,4 +1,4 @@
-import BaseTable, { SelectColumnFilter, StatusPill, ActionButtons } from '../../../components/BaseTable'
+import BaseTable, { SelectColumnFilter, StatusPill } from '../../../components/BaseTable'
 import React, { useEffect, useState } from 'react'
 import { Loading } from '../../../components/Loading'
 import axiosAuthInstance from '../../../utils/axios-auth-instance'
@@ -75,11 +75,6 @@ function ViewAllRoleAdmin() {
             </>
           )
         }
-      },
-      {
-        Header: 'Action',
-        accessor: (row) => ['Role', row.id],
-        Cell: ActionButtons
       }
     ],
     []
@@ -89,7 +84,7 @@ function ViewAllRoleAdmin() {
     <>
       <Loading visibility={showLoading} />
       <div className={`px-[50px] py-[30px] ${showLoading ? 'hidden' : 'visible'}`}>
-        <BaseTable columns={columns} data={dataRole} dataLength={dataRole.length} judul={`Role`} />
+        <BaseTable columns={columns} data={dataRole} dataLength={dataRole.length} judul={`Role`} disablePagination={true} />
       </div>
     </>
   )
