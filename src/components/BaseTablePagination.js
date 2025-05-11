@@ -4,6 +4,7 @@ import { BsEye, BsPencilSquare } from 'react-icons/bs'
 import { useNavigate } from 'react-router-dom'
 import DatePicker from 'react-datepicker'
 import { FaCalendarAlt } from 'react-icons/fa'
+import BoxesIcon from "../images/boxes.jpg";
 
 export function checkboxPagination({ value }) {
   return <input type="checkbox" className="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" checked={value} />
@@ -54,6 +55,12 @@ export function BaseTablePagination({ columns, data, currentPage, totalPages, pa
     navigate(newUrl)
   }
 
+  const onViewVisualisasi = (id) => {
+    const currentPath = window.location.pathname
+    const newUrl = `${currentPath}/visualisasi/${id}`
+    navigate(newUrl)
+  }
+
   const getNestedValue = (obj, path) => path.split('.').reduce((acc, part) => acc && acc[part], obj)
 
   const handleCheckboxChange = (id) => {
@@ -99,7 +106,24 @@ export function BaseTablePagination({ columns, data, currentPage, totalPages, pa
                                 {column.Header === 'No' ? (
                                   (currentPage - 1) * pageSize + rowIndex + 1 // Calculate numbering based on current page and page size
                                 ) : column.Header === 'Action' ? (
-                                  <div className=" space-x-2 flex justify-center items-center">{showView && <BsEye className="cursor-pointer" title="View Detail" onClick={() => onViewDetail(row.id)} />}</div>
+                                  <div className="space-x-2 flex items-center">
+                                    {showView && (
+                                      <>
+                                        <img 
+                                          src={BoxesIcon} 
+                                          alt="Visualisasi" 
+                                          className="cursor-pointer w-4 h-4 ml-2" 
+                                          title="Visualisasi Pengiriman"
+                                          onClick={() => onViewVisualisasi(row.id)}
+                                        />
+                                        <BsEye 
+                                          className="cursor-pointer" 
+                                          title="View Detail" 
+                                          onClick={() => onViewDetail(row.id)} 
+                                        />
+                                      </>
+                                    )}
+                                  </div>
                                 ) : column.Header === 'Checkbox' ? (
                                   <input type="checkbox" checked={selectedShipments.includes(row.id)} onChange={() => handleCheckboxChange(row.id)} />
                                 ) : (
@@ -195,6 +219,12 @@ export function BaseTablePaginationShipment({ columns, data, currentPage, totalP
     navigate(newUrl)
   }
 
+  const onViewVisualisasi = (id) => {
+    const currentPath = window.location.pathname
+    const newUrl = `${currentPath}/visualisasi/${id}`
+    navigate(newUrl)
+  }
+  
   const getNestedValue = (obj, path) => path.split('.').reduce((acc, part) => acc && acc[part], obj)
 
   return (

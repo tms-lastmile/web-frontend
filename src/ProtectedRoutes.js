@@ -95,6 +95,8 @@ function ProtectedRoutes() {
           
           {/* visualisasi pengiriman */}
           <Route path="/pengiriman/visualisasi" element={<PrivateRoute><Sidebar pengiriman={true} title="Visualisasi Pengiriman"><VisualizationShipment /></Sidebar></PrivateRoute>} /> 
+          
+          <Route path="/pengiriman/visualisasi/:idShipment" element={<PrivateRoute><Sidebar pengiriman={true} title="Visualisasi Pengiriman"><VisualizationShipment /></Sidebar></PrivateRoute>} /> 
           {/* <Route path="/pengiriman/visualisasi" element={<PrivateRoute><VisualizationShipment /></PrivateRoute>} />  */}
         </>
       )}

@@ -24,7 +24,7 @@ const dummyAPIResponse = {
   error: null
 };
 
-export default function ThreeScene() {
+export default function ThreeScene({ apiResponse}) {
   const mountRef = useRef();
   const cameraRef = useRef();
   const angleRef = useRef(Math.PI);
@@ -191,7 +191,7 @@ export default function ThreeScene() {
     window.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mouseup', onMouseUp);
 
-    loadData(dummyAPIResponse);
+    loadData(apiResponse);
 
     function animate() {
       requestAnimationFrame(animate);
@@ -207,7 +207,7 @@ export default function ThreeScene() {
       mountRef.current.removeChild(renderer.domElement);
       mountRef.current.removeChild(labelRenderer.domElement);
     };
-  }, []);
+  }, [apiResponse]);
 
   useEffect(() => {
     if (!rotateTrigger || !cameraRef.current) return;
