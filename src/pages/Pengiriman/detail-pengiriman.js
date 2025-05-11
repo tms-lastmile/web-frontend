@@ -64,14 +64,18 @@ function DetailPengiriman({ pengiriman, updatePengirimanList }) {
   const dos = pengiriman.delivery_orders || [];
   const additionalInfo = pengiriman.additional_info || [];
   const updatedLocationRoutes = locationRoutes.map(route => {
-    const matchingDOs = dos
-        .filter(doItem => doItem.loc_dest_id === route.id)
-        .map(doItem => doItem.delivery_order_num);
+    const matchingDOs = dos.filter(doItem => doItem.loc_dest_id === route.id);
+
+    const loc_do = matchingDOs.map(doItem => doItem.delivery_order_num);
+      const boxCounts = matchingDOs.reduce((total, doItem) => {
+      return total + (doItem.boxes?.length || 0);
+    }, 0);
 
     return {
-        ...route, 
-        loc_do: matchingDOs.length > 0 ? matchingDOs : []
-    };
+      ...route,
+      loc_do: loc_do.length > 0 ? loc_do : [],
+      box_count: boxCounts,
+  };
 });
 
 
@@ -157,7 +161,7 @@ function DetailPengiriman({ pengiriman, updatePengirimanList }) {
               <div>
                 <p className="text-xs text-gray-600">Total Biaya</p>
                 <p className="text-sm">
-                {`Rp. ${pengiriman.shipment_cost.toLocaleString('id-ID')}`}
+                {`Rp${pengiriman.shipment_cost.toLocaleString('id-ID')},00`}
                 </p>
               </div>
             </div>
@@ -209,7 +213,10 @@ function DetailPengiriman({ pengiriman, updatePengirimanList }) {
                     <div className="justify-between mb-2">
                       <div>
                         <h4 className="font-medium">{route.customer.name}</h4>
-                        <h7 className="font-medium">{route.loc_do}</h7>
+                        <div className="mb-1">
+                          <h7 className="font-medium">{route.loc_do.join(", ")}</h7>
+                          <div className="text-sm text-gray-600">Jumlah Box: {route.box_count} Box</div>
+                        </div>
                         <div className="text-sm mb-1">
                           <span className="font-normal text-primary">{route.open_hour} - {route.close_hour}</span>
                         </div>
