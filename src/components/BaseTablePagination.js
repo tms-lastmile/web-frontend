@@ -106,22 +106,24 @@ export function BaseTablePagination({ columns, data, currentPage, totalPages, pa
                                 {column.Header === 'No' ? (
                                   (currentPage - 1) * pageSize + rowIndex + 1 // Calculate numbering based on current page and page size
                                 ) : column.Header === 'Action' ? (
-                                  <div className="space-x-2 flex items-center">
+                                  <div className="space-x-0 flex items-center">
                                     {showView && (
                                       <>
-                                        <img 
-                                          src={BoxesIcon} 
-                                          alt="Visualisasi" 
-                                          className="cursor-pointer w-4 h-4 ml-2" 
-                                          title="Visualisasi Pengiriman"
-                                          onClick={() => onViewVisualisasi(row.id)}
-                                        />
-                                        <BsEye 
-                                          className="cursor-pointer" 
-                                          title="View Detail" 
-                                          onClick={() => onViewDetail(row.id)} 
-                                        />
-                                      </>
+                                      <button 
+                                        className="flex items-center px-2 py-1 bg-blue-500 text-white rounded-md text-xs hover:bg-blue-600 transition-colors mr-2"
+                                        onClick={() => onViewVisualisasi(row.id)}
+                                        title="Visualisasi Pengiriman"
+                                      >
+                                        Visualisasi
+                                      </button>
+                                      <button 
+                                        className="flex items-center px-2 py-1 bg-gray-500 text-white rounded-md text-xs hover:bg-gray-600 transition-colors"
+                                        onClick={() => onViewDetail(row.id)}
+                                        title="View Detail"
+                                      >
+                                        Detail
+                                      </button>
+                                    </>
                                     )}
                                   </div>
                                 ) : column.Header === 'Checkbox' ? (

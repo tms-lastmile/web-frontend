@@ -93,9 +93,7 @@ function ProtectedRoutes() {
           <Route path="/pengiriman/select-do-manual" element={<PrivateRoute><Sidebar shipment={true} title="Pengiriman Manual"><DoSelectManual /></Sidebar></PrivateRoute>} />
           <Route path="/product-line" element={<PrivateRoute><Sidebar productLine={true} title="Daftar Product Line"><ViewAllProductLine /></Sidebar></PrivateRoute>} />
           
-          {/* visualisasi pengiriman */}
-          <Route path="/pengiriman/visualisasi" element={<PrivateRoute><Sidebar pengiriman={true} title="Visualisasi Pengiriman"><VisualizationShipment /></Sidebar></PrivateRoute>} /> 
-          
+          {/* visualisasi pengiriman */}        
           <Route path="/pengiriman/visualisasi/:idShipment" element={<PrivateRoute><Sidebar pengiriman={true} title="Visualisasi Pengiriman"><VisualizationShipment /></Sidebar></PrivateRoute>} /> 
           {/* <Route path="/pengiriman/visualisasi" element={<PrivateRoute><VisualizationShipment /></PrivateRoute>} />  */}
         </>
