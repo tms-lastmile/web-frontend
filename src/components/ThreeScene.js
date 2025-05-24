@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { useEffect, useRef, useState } from 'react';
+import Modal from 'react-modal';
 
 const dummyAPIResponse = {
   success: true,
@@ -10,6 +11,7 @@ const dummyAPIResponse = {
     {
       fitness: 1.7641,
       selected_container: "Blind Van",
+      base_container: "Blind Van", // Added base_container field
       layout: [
         { do_num: "DO/3", box_id: 1, do_index: 0, min_corner: [0, 0, 0], max_corner: [48, 48, 46] },
         { do_num: "DO/3", box_id: 2, do_index: 0, min_corner: [0, 0, 46], max_corner: [33, 33, 86] },
@@ -25,21 +27,40 @@ const dummyAPIResponse = {
 };
 
 const container_options = {
-  BLIND_VAN: (255, 146, 130),
-  CDE: (350, 160, 160)
+  BLIND_VAN: { length: 255, width: 146, height: 130 },
+  CDE: { length: 350, width: 160, height: 160 }
 };
 
-export default function ThreeScene({ apiResponse}) {
+// Make sure to bind modal to your appElement (http://reactcommunity.org/react-modal/accessibility/)
+Modal.setAppElement('#root');
+
+export default function ThreeScene({ apiResponse }) {
   const mountRef = useRef();
   const cameraRef = useRef();
   const angleRef = useRef(Math.PI);
   const [rotateTrigger, setRotateTrigger] = useState(null);
   const [doLegend, setDoLegend] = useState([]);
   const hoveredLabelRef = useRef(null);
+  const [showModal, setShowModal] = useState(false);
+  const [useSelectedContainer, setUseSelectedContainer] = useState(false);
 
   const radius = 250;
 
   useEffect(() => {
+    // Check if selected container matches base container
+    const selectedContainer = apiResponse.data[0].selected_container;
+    const baseContainer = apiResponse.data[0].base_container;
+    
+    if (selectedContainer !== baseContainer) {
+      setShowModal(true);
+      return; // Don't render visualization yet
+    }
+    
+    // If they match or user has confirmed to use selected container, render visualization
+    renderVisualization();
+  }, [apiResponse, useSelectedContainer]);
+
+  const renderVisualization = () => {
     let containerLength, containerWidth, containerHeight;
 
     const selectedContainer = apiResponse.data[0].selected_container;
@@ -47,7 +68,7 @@ export default function ThreeScene({ apiResponse}) {
       containerLength = 350;
       containerWidth = 160;
       containerHeight = 160;
-    } else {
+    } else { // BLIND VAN
       containerLength = 255;
       containerWidth = 146;
       containerHeight = 130;
@@ -65,7 +86,7 @@ export default function ThreeScene({ apiResponse}) {
     labelRenderer.domElement.style.top = '0';
     mountRef.current.appendChild(labelRenderer.domElement);
 
-    camera.position.set(-radius, 125, 0);
+    camera.position.set(-radius, 150, 0);
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
@@ -196,8 +217,7 @@ export default function ThreeScene({ apiResponse}) {
           labelDiv.style.whiteSpace = 'nowrap';
     
           const label = new CSS2DObject(labelDiv);
-          // label.position.set(0, box.geometry.parameters.height / 2 + 5, 0); // di atas box
-          label.position.set(0, 0, 0); // Uji coba dulu posisinya
+          label.position.set(0, 0, 0);
           box.add(label);
           hoveredLabelRef.current = label;
         }
@@ -246,7 +266,7 @@ export default function ThreeScene({ apiResponse}) {
     function animate() {
       requestAnimationFrame(animate);
       renderer.render(scene, cameraRef.current);
-      labelRenderer.render(scene, cameraRef.current); // <- render label juga
+      labelRenderer.render(scene, cameraRef.current);
     }
     animate();
 
@@ -254,10 +274,29 @@ export default function ThreeScene({ apiResponse}) {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mousedown', onMouseDown);
       window.removeEventListener('mouseup', onMouseUp);
-      mountRef.current.removeChild(renderer.domElement);
-      mountRef.current.removeChild(labelRenderer.domElement);
+    
+      if (mountRef.current) {
+        if (renderer.domElement.parentNode === mountRef.current) {
+          mountRef.current.removeChild(renderer.domElement);
+        }
+        if (labelRenderer.domElement.parentNode === mountRef.current) {
+          mountRef.current.removeChild(labelRenderer.domElement);
+        }
+      }
     };
-  }, [apiResponse]);
+  }
+
+  const handleUseSelectedContainer = () => {
+    renderVisualization();
+    setUseSelectedContainer(true);
+    setShowModal(false);
+  };
+
+  const handleCancel = () => {
+    setUseSelectedContainer(false);
+    setShowModal(false);
+    // You might want to navigate away or show a different view here
+  };
 
   useEffect(() => {
     if (!rotateTrigger || !cameraRef.current) return;
@@ -274,6 +313,31 @@ export default function ThreeScene({ apiResponse}) {
 
   return (
     <div ref={mountRef} style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden' }}>
+      {showModal && (
+        <Modal
+          isOpen={showModal}
+          onRequestClose={handleCancel}
+          style={modalStyles}
+          contentLabel="Container Mismatch Confirmation"
+        >
+          <h2 style={{ marginTop: 0 }}>Container Tidak Sesuai</h2>
+          <p>
+            Barang tidak muat di container default ({apiResponse.data[0].base_container}). 
+            Sistem menyarankan menggunakan {apiResponse.data[0].selected_container} 
+            dengan fitness score {apiResponse.data[0].fitness.toFixed(2)}.
+          </p>
+          <p>Apakah Anda ingin menggunakan {apiResponse.data[0].selected_container}?</p>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
+            <button onClick={handleCancel} style={{ ...buttonStyle, backgroundColor: '#ccc', color: '#333' }}>
+              Batal
+            </button>
+            <button onClick={handleUseSelectedContainer} style={buttonStyle}>
+              Gunakan {apiResponse.data[0].selected_container}
+            </button>
+          </div>
+        </Modal>
+      )}
+      
       <div style={{
         position: 'absolute',
         top: 20,
@@ -297,7 +361,7 @@ export default function ThreeScene({ apiResponse}) {
         borderRadius: '8px',
         fontSize: '14px'
       }}>
-        <strong>Nomor DO:</strong>
+        <strong>Jenis Truk: {apiResponse.data[0].selected_container}</strong>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {doLegend.map((item, idx) => (
             <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
@@ -322,6 +386,25 @@ const buttonStyle = {
   boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
 };
 
+const modalStyles = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    maxWidth: '500px',
+    width: '90%',
+    borderRadius: '8px',
+    padding: '20px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+  },
+  overlay: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)'
+  }
+};
+
 const contrastColors = [
   '#e6194b', // Red
   '#3cb44b', // Green
@@ -343,5 +426,4 @@ const contrastColors = [
   '#ffd8b1', // Apricot
   '#000075', // Navy
   '#808080', // Grey
-];
-
+]
