@@ -150,12 +150,16 @@ export default function ThreeScene({ apiResponse }) {
         const mesh = new THREE.Mesh(geometry, material);
         mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geometry), new THREE.LineBasicMaterial({ color: 0x000000 })));
     
+        // mesh.position.set(
+        //   (containerLength - minX - width) - containerLength / 2 + width / 2,
+        //   (minZ + depth / 2),
+        //   (minY + height / 2) - containerHeight / 2
+        // );
         mesh.position.set(
-          (containerLength - minX - width) - containerLength / 2 + width / 2,
-          (minZ + depth / 2),
-          (minY + height / 2) - containerHeight / 2
+          containerLength / 2 - (minX + width / 2),
+          minZ + depth / 2,
+          minY - containerWidth / 2 + height / 2
         );
-    
         scene.add(mesh);
         boxes.push(mesh);
       });
