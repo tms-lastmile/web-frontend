@@ -31,6 +31,7 @@ export default function ThreeScene({ apiResponse }) {
     const selectedContainer = apiResponse.data[0].selected_container;
     const baseContainer = apiResponse.data[0].base_container;
     const fitnessScore = apiResponse.data[0].fitness;
+    const shipmentNum = apiResponse.data[0].shipment_num;
     
     // Jika fitness score > 2, tampilkan warning modal
     if (fitnessScore > 2) {
@@ -378,7 +379,7 @@ export default function ThreeScene({ apiResponse }) {
           <p>Apakah Anda ingin menggunakan {apiResponse.data[0].selected_container}?</p>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
             <button onClick={handleCancel} style={{ ...buttonStyle, backgroundColor: '#ccc', color: '#333' }}>
-              Batal
+              Kembali
             </button>
             <button onClick={handleUseSelectedContainer} style={buttonStyle} disabled={isUpdatingTruck}>{isUpdatingTruck ? 'Memproses...' : `Gunakan ${apiResponse.data[0].selected_container}`}
             </button>
@@ -409,12 +410,20 @@ export default function ThreeScene({ apiResponse }) {
         borderRadius: '8px',
         fontSize: '14px'
       }}>
-        <strong>Jenis Truk: {apiResponse.data[0].selected_container}</strong>
+        <div>
+          <strong>Nomor Shipment:</strong> {apiResponse.data[0].shipment_num}
+        </div>
+        <div>
+          <strong>Jenis Truk:</strong> {apiResponse.data[0].selected_container}
+        </div>
+        <div>
+          <strong>Urutan Pengiriman:</strong>
+        </div>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {doLegend.map((item, idx) => (
             <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
               <span style={{ display: 'inline-block', width: '16px', height: '16px', backgroundColor: item.color, border: '1px solid #000' }} />
-              <span>{item.do_num}</span>
+              <span>{idx + 1}. {item.do_num}</span>
             </li>
           ))}
         </ul>
