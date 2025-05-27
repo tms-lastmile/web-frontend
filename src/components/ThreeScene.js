@@ -2,36 +2,8 @@ import * as THREE from 'three';
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { useEffect, useRef, useState } from 'react';
 import Modal from 'react-modal';
+import axiosAuthInstance from "../utils/axios-auth-instance";
 
-const dummyAPIResponse = {
-  success: true,
-  code: 200,
-  message: "Success",
-  data: [
-    {
-      fitness: 1.7641,
-      selected_container: "Blind Van",
-      base_container: "Blind Van", // Added base_container field
-      layout: [
-        { do_num: "DO/3", box_id: 1, do_index: 0, min_corner: [0, 0, 0], max_corner: [48, 48, 46] },
-        { do_num: "DO/3", box_id: 2, do_index: 0, min_corner: [0, 0, 46], max_corner: [33, 33, 86] },
-        { do_num: "DO/3", box_id: 3, do_index: 0, min_corner: [0, 48, 0], max_corner: [44, 93, 39] },
-        { do_num: "DO/3", box_id: 4, do_index: 0, min_corner: [0, 33, 46], max_corner: [55, 82, 101] },
-        { do_num: "DO/2", box_id: 5, do_index: 1, min_corner: [0, 93, 0], max_corner: [47, 130, 37] },
-        { do_num: "DO/2", box_id: 6, do_index: 1, min_corner: [0, 82, 39], max_corner: [33, 142, 93] },
-        { do_num: "DO/1", box_id: 7, do_index: 2, min_corner: [55, 0, 0], max_corner: [101, 57, 41] }
-      ]
-    }
-  ],
-  error: null
-};
-
-const container_options = {
-  BLIND_VAN: { length: 255, width: 146, height: 130 },
-  CDE: { length: 350, width: 160, height: 160 }
-};
-
-// Make sure to bind modal to your appElement (http://reactcommunity.org/react-modal/accessibility/)
 Modal.setAppElement('#root');
 
 export default function ThreeScene({ apiResponse }) {
@@ -43,20 +15,35 @@ export default function ThreeScene({ apiResponse }) {
   const hoveredLabelRef = useRef(null);
   const [showModal, setShowModal] = useState(false);
   const [useSelectedContainer, setUseSelectedContainer] = useState(false);
+  const [isUpdatingTruck, setIsUpdatingTruck] = useState(false);
+  const [showFitnessWarningModal, setShowFitnessWarningModal] = useState(false);
 
   const radius = 250;
 
   useEffect(() => {
+    // Jika user sudah memilih untuk menggunakan selected container, langsung render
+    if (useSelectedContainer) {
+      renderVisualization();
+      return;
+    }
+  
     // Check if selected container matches base container
     const selectedContainer = apiResponse.data[0].selected_container;
     const baseContainer = apiResponse.data[0].base_container;
+    const fitnessScore = apiResponse.data[0].fitness;
+    
+    // Jika fitness score > 2, tampilkan warning modal
+    if (fitnessScore > 2) {
+      setShowFitnessWarningModal(true);
+      return;
+    }
     
     if (selectedContainer !== baseContainer) {
       setShowModal(true);
-      return; // Don't render visualization yet
+      return;
     }
     
-    // If they match or user has confirmed to use selected container, render visualization
+    // Jika sama, render visualization
     renderVisualization();
   }, [apiResponse, useSelectedContainer]);
 
@@ -290,16 +277,51 @@ export default function ThreeScene({ apiResponse }) {
     };
   }
 
-  const handleUseSelectedContainer = () => {
-    renderVisualization();
-    setUseSelectedContainer(true);
-    setShowModal(false);
+  const handleUseSelectedContainer = async () => {
+    try {
+      setIsUpdatingTruck(true);
+      
+      const truckType = apiResponse.data[0].selected_container === "CDE" ? 2 : 1;
+      
+      const response = await axiosAuthInstance.post(
+        `/shipment/${apiResponse.data[0].shipment_id}/update-truck-type`, 
+        { typeId: truckType }
+      );
+      
+      setUseSelectedContainer(true);
+      setShowModal(false);
+      alert(`Truck berhasil diubah ke ${apiResponse.data[0].selected_container}`);
+      
+    } catch (error) {
+      console.error("Failed to update truck:", error);
+      
+      // Cek apakah error memiliki response dari backend
+      const errorMessage = error.response?.data?.error || 
+                          error.response?.data?.message || 
+                          error.message || 
+                          "Failed to update truck. Please try again.";
+      
+      alert(`Error: ${errorMessage}`);
+      
+      // Jika error karena truck tidak tersedia, tetap tutup modal
+      if (error.response?.data?.error?.includes("No available truck")) {
+        setShowModal(false);
+      }
+      window.location.href = '/pengiriman';
+    } finally {
+      setIsUpdatingTruck(false);
+    }
   };
 
   const handleCancel = () => {
     setUseSelectedContainer(false);
     setShowModal(false);
-    // You might want to navigate away or show a different view here
+    window.location.href = '/pengiriman';
+  };
+
+  const handleFitnessWarningConfirm = () => {
+    setShowFitnessWarningModal(false);
+    window.location.href = '/pengiriman';
   };
 
   useEffect(() => {
@@ -317,6 +339,30 @@ export default function ThreeScene({ apiResponse }) {
 
   return (
     <div ref={mountRef} style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden' }}>
+      {/* Modal untuk fitness warning */}
+      {showFitnessWarningModal && (
+        <Modal
+          isOpen={showFitnessWarningModal}
+          onRequestClose={handleFitnessWarningConfirm}
+          style={modalStyles}
+          contentLabel="Fitness Warning"
+        >
+          <h2 style={{ marginTop: 0 }}>Peringatan Kapasitas</h2>
+          <p>
+            Pengiriman tidak dapat divisualisasikan karena tidak muat di semua jenis container yang tersedia.
+          </p>
+          <p>
+            Fitness score: {apiResponse.data[0].fitness.toFixed(2)} (nilai &gt; 2 menunjukkan ketidakcocokan dengan semua container)
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+            <button onClick={handleFitnessWarningConfirm} style={buttonStyle}>
+              Ok
+            </button>
+          </div>
+        </Modal>
+      )}
+
+
       {showModal && (
         <Modal
           isOpen={showModal}
@@ -327,16 +373,14 @@ export default function ThreeScene({ apiResponse }) {
           <h2 style={{ marginTop: 0 }}>Container Tidak Sesuai</h2>
           <p>
             Barang tidak muat di container default ({apiResponse.data[0].base_container}). 
-            Sistem menyarankan menggunakan {apiResponse.data[0].selected_container} 
-            dengan fitness score {apiResponse.data[0].fitness.toFixed(2)}.
+            Sistem menyarankan menggunakan {apiResponse.data[0].selected_container} dengan fitness score {apiResponse.data[0].fitness.toFixed(2)}.
           </p>
           <p>Apakah Anda ingin menggunakan {apiResponse.data[0].selected_container}?</p>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
             <button onClick={handleCancel} style={{ ...buttonStyle, backgroundColor: '#ccc', color: '#333' }}>
               Batal
             </button>
-            <button onClick={handleUseSelectedContainer} style={buttonStyle}>
-              Gunakan {apiResponse.data[0].selected_container}
+            <button onClick={handleUseSelectedContainer} style={buttonStyle} disabled={isUpdatingTruck}>{isUpdatingTruck ? 'Memproses...' : `Gunakan ${apiResponse.data[0].selected_container}`}
             </button>
           </div>
         </Modal>
