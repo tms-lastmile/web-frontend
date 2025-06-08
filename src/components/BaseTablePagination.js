@@ -44,7 +44,7 @@ export function ActionButtonsPagination({ value }) {
   )
 }
 
-export function BaseTablePagination({ columns, data, currentPage, totalPages, pageSize, onPageChange, onPageSizeChange, loading, showView = true, judul }) {
+export function BaseTablePagination({ columns, data, currentPage, totalPages, pageSize, onPageChange, onPageSizeChange, loading, showView = true, judul, showVisualisasiButton = false }) {
   const navigate = useNavigate()
   const [selectedShipments, setSelectedShipments] = useState([])
   const [allChecked, setAllChecked] = useState(false)
@@ -107,25 +107,29 @@ export function BaseTablePagination({ columns, data, currentPage, totalPages, pa
                                   (currentPage - 1) * pageSize + rowIndex + 1 // Calculate numbering based on current page and page size
                                 ) : column.Header === 'Action' ? (
                                   <div className="space-x-0 flex items-center">
+                                    {/* Tombol Visualisasi, dikontrol HANYA oleh `showVisualisasiButton` */}
+                                    {showVisualisasiButton && (
+                                        <button
+                                            className="flex items-center px-2 py-1 bg-blue-500 text-white rounded-md text-xs hover:bg-blue-600 transition-colors mr-2"
+                                            onClick={() => onViewVisualisasi(row.id)}
+                                            title="Visualisasi Pengiriman"
+                                        >
+                                            Visualisasi
+                                        </button>
+                                    )}
+
+                                    {/* Tombol Detail, dikontrol HANYA oleh `showView` */}
                                     {showView && (
-                                      <>
-                                      <button 
-                                        className="flex items-center px-2 py-1 bg-blue-500 text-white rounded-md text-xs hover:bg-blue-600 transition-colors mr-2"
-                                        onClick={() => onViewVisualisasi(row.id)}
-                                        title="Visualisasi Pengiriman"
-                                      >
-                                        Visualisasi
-                                      </button>
-                                      <button 
-                                        className="flex items-center px-2 py-1 bg-gray-500 text-white rounded-md text-xs hover:bg-gray-600 transition-colors"
-                                        onClick={() => onViewDetail(row.id)}
-                                        title="View Detail"
-                                      >
-                                        Detail
-                                      </button>
-                                    </>
+                                        <button
+                                            className="flex items-center px-2 py-1 bg-gray-500 text-white rounded-md text-xs hover:bg-gray-600 transition-colors"
+                                            onClick={() => onViewDetail(row.id)}
+                                            title="View Detail"
+                                        >
+                                            Detail
+                                        </button>
                                     )}
                                   </div>
+
                                 ) : column.Header === 'Checkbox' ? (
                                   <input type="checkbox" checked={selectedShipments.includes(row.id)} onChange={() => handleCheckboxChange(row.id)} />
                                 ) : (
@@ -212,7 +216,7 @@ export function BaseTablePagination({ columns, data, currentPage, totalPages, pa
   )
 }
 
-export function BaseTablePaginationShipment({ columns, data, currentPage, totalPages, pageSize, onPageChange, onPageSizeChange, loading, showView = true, judul, setStartDate, setEndDate, startDate, endDate, handleSelectAllChange, selectedData, handleCheckboxChange, totalData, isAllChecked }) {
+export function BaseTablePaginationShipment({ columns, data, currentPage, totalPages, pageSize, onPageChange, onPageSizeChange, loading, showView = true, judul, showVisualisasiButton = false, setStartDate, setEndDate, startDate, endDate, handleSelectAllChange, selectedData, handleCheckboxChange, totalData, isAllChecked }) {
   const navigate = useNavigate()
 
   const onViewDetail = (id) => {

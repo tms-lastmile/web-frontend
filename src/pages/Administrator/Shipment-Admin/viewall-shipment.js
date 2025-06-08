@@ -93,6 +93,7 @@ function ViewAllShipment() {
                   onPageSizeChange={handlePageSizeChange}
                   loading={showLoading}
                   judul={'Riwayat Pengiriman'}
+                  showVisualisasiButton={true}
               />
           </div>
       </>
