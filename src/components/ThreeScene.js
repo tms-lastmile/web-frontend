@@ -417,6 +417,9 @@ export default function ThreeScene({ apiResponse }) {
           <strong>Jenis Truk:</strong> {apiResponse.data[0].selected_container}
         </div>
         <div>
+          <strong>Tingkat Utilisasi:</strong> {(apiResponse.data[0].utilization * 100).toFixed(2)}%        
+        </div>
+        <div>
           <strong>Urutan Pengiriman:</strong>
         </div>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
