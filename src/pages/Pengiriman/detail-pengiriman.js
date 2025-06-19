@@ -93,7 +93,7 @@ function DetailPengiriman({ pengiriman, updatePengirimanList }) {
       <div className="bg-neutral-10 rounded-b-md p-6">
         <h2 className="text-lg font-medium mb-4">Peta Rute</h2>
         <div className="h-[400px] bg-gray-100 rounded-lg mb-4">
-        <LoadScript googleMapsApiKey="AIzaSyDe-GwHIfh0zWB4B0mjzFKQBuklOGbHxoE">
+        <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_KEY}>
         <GoogleMap
             key={pengiriman.shipment_num} // force remount saat shipment berubah
             mapContainerStyle={mapContainerStyle}
